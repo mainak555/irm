@@ -13,3 +13,4 @@
 | [0009](0009-sa-username-password-not-oidc.md) | SA super admin uses username+password, not email+OIDC | accepted | 2026-05-28 |
 | [0010](0010-per-page-db-function-files.md) | Per-page DB function files instead of a monolithic db.php | accepted | 2026-05-28 |
 | [0011](0011-theme-preference-in-database.md) | Admin theme preference stored in database, not localStorage | accepted | 2026-05-28 |
+| [0012](0012-oidc-error-page-auth-card-layout.md) | OIDC error page uses auth-card layout for auth-flow visual continuity | accepted | 2026-05-29 |

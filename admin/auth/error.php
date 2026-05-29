@@ -23,10 +23,15 @@ if ($msg === '') {
 <link rel="stylesheet" href="/admin/style.css">
 </head>
 <body class="grain-texture auth-page-bg">
-<div class="text-center">
-  <h2 class="mb-3"><?= h($msg) ?></h2>
-  <p class="text-muted mb-4">Please contact an administrator to request access.</p>
-  <a href="/admin/login.php" class="btn btn-primary">Back to Login</a>
+<div class="auth-card w-100 px-3">
+  <div class="card shadow-sm">
+    <div class="card-body p-4">
+      <h4 class="card-title mb-1">Access Not Granted</h4>
+      <p class="text-muted small mb-3"><?= h($msg) ?></p>
+      <p class="text-muted mb-4">Please contact an administrator to request access.</p>
+      <a href="/admin/login.php" class="btn btn-primary w-100">Back to Login</a>
+    </div>
+  </div>
 </div>
 </body>
 </html>

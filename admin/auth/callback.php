@@ -122,13 +122,13 @@ if ($email === '') {
 // Find user by email — no auto-provisioning
 $user = auth_user_find_by_email($email);
 if ($user === null) {
-    oidc_provision_fail("No account found for {$email}. Ask an administrator to add you.");
+    oidc_provision_fail("No account found for {$email}.");
 }
 if (!(int) $user['is_active']) {
     oidc_fail('Your account is inactive. Contact an administrator.');
 }
 if (empty($user['role'])) {
-    oidc_provision_fail("Your account ({$email}) has no role assigned. Ask an administrator to assign you a role.");
+    oidc_provision_fail("Your account ({$email}) has no role assigned.");
 }
 
 // Establish session
