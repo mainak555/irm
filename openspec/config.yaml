@@ -28,10 +28,10 @@ context: |
 
 rules:
   proposal:
-    - Must Use grill-me skill
+    - Must Use grill-with-docs skill
   design:
-    - Must use c4-diagram skill
-    - Must use architecture-decision-records skill
+    - Must use c4-architecture skill
+    - Must use architecture-decision-records skill to validate & rectify (if major gaps) generated ADR by grill-with-docs skill 
   specs:
     - Must use gherkin-authoring skill
   tasks:
