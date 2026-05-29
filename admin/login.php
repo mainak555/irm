@@ -82,6 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $oidc = $is_setup ? null : auth_config_active();
 $school_title = cfg('school.title') ?: 'IRM';
+$logo_url     = cfg('school.logoUrl') ?: '/assets/img/logo.png';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -103,6 +104,9 @@ $school_title = cfg('school.title') ?: 'IRM';
   <!-- ===== FIRST-LAUNCH SETUP ===== -->
   <div class="card shadow-sm">
     <div class="card-body p-4">
+      <div class="text-center mb-3">
+        <img src="<?= h($logo_url) ?>" alt="Logo" class="auth-logo">
+      </div>
       <h4 class="card-title mb-1">Initial Setup</h4>
       <p class="text-muted small mb-4">Create the administrator password to get started.</p>
 
@@ -141,8 +145,11 @@ $school_title = cfg('school.title') ?: 'IRM';
   <!-- ===== LOGIN ===== -->
   <div class="card shadow-sm">
     <div class="card-body p-4">
-      <h4 class="card-title mb-1"><?= h($school_title) ?></h4>
-      <p class="text-muted small mb-4">Admin Panel</p>
+      <div class="text-center mb-3">
+        <img src="<?= h($logo_url) ?>" alt="Logo" class="auth-logo">
+      </div>
+      <h4 class="card-title mb-1 text-center"><?= h($school_title) ?></h4>
+      <p class="text-muted small mb-4 text-center">Admin Panel</p>
 
       <?php if ($error): ?>
         <div class="alert alert-danger py-2"><?= h($error) ?></div>

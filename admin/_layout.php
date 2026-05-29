@@ -13,6 +13,7 @@ $theme = $user['theme'] ?? 'system';
 $role  = $user['role']  ?? '';
 
 $current_page = basename($_SERVER['PHP_SELF'], '.php');
+$logo_url     = cfg('school.logoUrl') ?: '/assets/img/logo.png';
 
 // Resolve data-bs-theme attribute value for non-system themes
 $bs_theme_attr = ($theme === 'system') ? '' : ' data-bs-theme="' . h($theme) . '"';
@@ -40,7 +41,8 @@ $bs_theme_attr = ($theme === 'system') ? '' : ' data-bs-theme="' . h($theme) . '
 
 <!-- Top Navbar -->
 <nav class="navbar navbar-expand px-3 border-bottom" style="height:56px">
-  <a class="navbar-brand" href="/admin/index.php">
+  <a class="navbar-brand d-flex align-items-center gap-2" href="/admin/index.php">
+    <img src="<?= h($logo_url) ?>" alt="Logo" class="navbar-logo">
     <?= h(cfg('school.title') ?: 'IRM Admin') ?>
   </a>
   <div class="ms-auto d-flex align-items-center gap-3">
