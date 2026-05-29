@@ -13,6 +13,13 @@ function oidc_fail(string $msg): never
     exit;
 }
 
+function oidc_provision_fail(string $msg): never
+{
+    $_SESSION['oidc_provision_error'] = $msg;
+    header('Location: /admin/auth/error.php');
+    exit;
+}
+
 // Consume session immediately (replay protection)
 if (empty($_SESSION['oidc'])) {
     oidc_fail('OIDC session expired or missing. Please try again.');
@@ -115,10 +122,13 @@ if ($email === '') {
 // Find user by email — no auto-provisioning
 $user = auth_user_find_by_email($email);
 if ($user === null) {
-    oidc_fail("No account found for {$email}. Ask an administrator to add you.");
+    oidc_provision_fail("No account found for {$email}. Ask an administrator to add you.");
 }
 if (!(int) $user['is_active']) {
     oidc_fail('Your account is inactive. Contact an administrator.');
+}
+if (empty($user['role'])) {
+    oidc_provision_fail("Your account ({$email}) has no role assigned. Ask an administrator to assign you a role.");
 }
 
 // Establish session
