@@ -102,6 +102,10 @@ function user_update_password(int $id, string $hash): void
 
 function user_delete(int $id): void
 {
+    $by = audit_by();
+    $st = db()->prepare('UPDATE auth_users SET created_by = :by, updated_by = :by WHERE created_by = :id');
+    $st->execute([':by' => $by, ':id' => $id]);
+
     $st = db()->prepare('DELETE FROM auth_users WHERE id = :id');
     $st->execute([':id' => $id]);
 }

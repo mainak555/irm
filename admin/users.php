@@ -56,7 +56,7 @@ require __DIR__ . '/_layout.php';
             $is_sa     = ($u['email'] === 'admin' && $u['role'] === 'sa');
             $is_me     = (int) $u['id'] === (int) $user['id'];
             $is_higher = role_rank($u['role']) > role_rank($user['role']);
-            $is_peer   = !$is_sa && !$is_me && !$is_higher && $user['role'] !== 'sa' && (role_rank($u['role']) === role_rank($user['role']));
+            $is_peer   = !$is_sa && !$is_me && !$is_higher && (role_rank($u['role']) === role_rank($user['role'])) && (int) $u['created_by'] !== (int) $user['id'];
             $locked    = $is_sa || $is_me || $is_higher;
             $tr_class  = ($is_sa || $is_higher) ? 'irm-sa-row' : ($is_me ? 'irm-me-row' : ($is_peer ? 'irm-peer-row' : ''));
           ?>

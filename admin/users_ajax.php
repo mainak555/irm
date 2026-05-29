@@ -37,7 +37,7 @@ function ajax_err(string $msg, int $code = 400): void
     exit;
 }
 
-function guard_target(int $id, bool $block_same_rank = true): array
+function guard_target(int $id, bool $allow_same_rank_active = false): array
 {
     if ($id <= 0) ajax_err('Invalid user ID.');
     $target = user_get($id);
@@ -46,7 +46,10 @@ function guard_target(int $id, bool $block_same_rank = true): array
     $me = current_user();
     if ($me && (int) $me['id'] === $id) ajax_err('You cannot modify your own account from this page.', 403);
     if ($me && role_rank($target['role']) > role_rank($me['role'])) ajax_err('Permission denied.', 403);
-    if ($block_same_rank && $me && $me['role'] !== 'sa' && role_rank($target['role']) === role_rank($me['role'])) ajax_err('Permission denied.', 403);
+    if (!$allow_same_rank_active && $me && role_rank($target['role']) === role_rank($me['role'])
+        && (int) ($target['created_by'] ?? 0) !== (int) $me['id']) {
+        ajax_err('Permission denied.', 403);
+    }
     return $target;
 }
 
@@ -83,7 +86,7 @@ switch ($action) {
         break;
 
     case 'toggle_active':
-        guard_target($id, block_same_rank: false);
+        guard_target($id, allow_same_rank_active: true);
         user_toggle_active($id);
         ajax_ok();
         break;

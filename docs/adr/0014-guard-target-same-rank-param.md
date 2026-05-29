@@ -1,7 +1,7 @@
 # ADR-0014: guard_target() same-rank enforcement via boolean parameter
 
 **Date**: 2026-05-29
-**Status**: accepted
+**Status**: superseded by ADR-0016
 **Deciders**: Mainak Chowdhury
 
 ## Context

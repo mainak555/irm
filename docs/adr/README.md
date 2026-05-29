@@ -15,5 +15,6 @@
 | [0011](0011-theme-preference-in-database.md) | Admin theme preference stored in database, not localStorage | accepted | 2026-05-28 |
 | [0012](0012-oidc-error-page-auth-card-layout.md) | OIDC error page uses auth-card layout for auth-flow visual continuity | accepted | 2026-05-29 |
 | [0013](0013-role-rank-helper.md) | role_rank() helper for role hierarchy comparison | accepted | 2026-05-29 |
-| [0014](0014-guard-target-same-rank-param.md) | guard_target() same-rank enforcement via boolean parameter | accepted | 2026-05-29 |
+| [0014](0014-guard-target-same-rank-param.md) | guard_target() same-rank enforcement via boolean parameter | superseded by ADR-0016 | 2026-05-29 |
 | [0015](0015-audit-columns-display-standard.md) | Audit columns UI standard: show Updated only; tooltip-only timezone | accepted | 2026-05-29 |
+| [0016](0016-creator-ownership-same-rank-guard.md) | Creator-ownership replaces role-based same-rank exemption | accepted | 2026-05-29 |
