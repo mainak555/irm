@@ -25,3 +25,8 @@ function current_user(): ?array
 {
     return $_SESSION['auth'] ?? null;
 }
+
+function role_rank(string $role): int
+{
+    return ['sa' => 3, 'admin' => 2, 'faculty' => 1, 'user' => 0][$role] ?? -1;
+}

@@ -51,11 +51,21 @@ The Users page SHALL only be accessible to users with `role = 'sa'` or `role = '
 ---
 
 ### Requirement: Add user
-The system SHALL provide an "Add User" control that opens a modal form. The form SHALL collect Name, Email, Password, Role (dropdown defaulting to `user`), and SSO flag (checkbox). On valid submission the system SHALL insert a new `auth_users` row with `is_active = 1` and the bcrypt-hashed password. Email SHALL be unique; duplicate email submission SHALL be rejected with an error.
+The system SHALL provide an "Add User" control that opens a modal form. The form SHALL collect
+Name, Email, Password, Role (dropdown defaulting to `user`), and SSO flag (checkbox). The role
+dropdown SHALL only include roles with rank less than or equal to the acting user's rank — an
+`admin`-role actor SHALL NOT see the `sa` option. On valid submission the system SHALL insert a
+new `auth_users` row with `is_active = 1` and the bcrypt-hashed password. Email SHALL be unique;
+duplicate email submission SHALL be rejected with an error. The server SHALL reject with HTTP 403
+any submission where the requested role rank exceeds the acting user's role rank.
 
 #### Scenario: Add user modal opens
 - **WHEN** an authorized user clicks "Add User"
 - **THEN** a modal form appears with Name, Email, Password, Role (default `user`), and SSO fields
+
+#### Scenario: Admin role dropdown omits sa option
+- **WHEN** an `admin`-role user opens the Add User modal
+- **THEN** the role dropdown does not include the `sa` option
 
 #### Scenario: User created successfully
 - **WHEN** the form is submitted with a unique email and a password that passes complexity rules
@@ -73,6 +83,11 @@ The system SHALL provide an "Add User" control that opens a modal form. The form
 #### Scenario: SSO user created without password
 - **WHEN** the SSO checkbox is checked and the form is submitted
 - **THEN** the password field is not required and no bcrypt hash is stored
+
+#### Scenario: Admin attempt to add sa-role user is rejected server-side
+- **WHEN** an `admin`-role user submits an `add_user` request with `role = 'sa'`
+- **THEN** the server responds with HTTP 403
+- **THEN** no user is created
 
 ---
 
@@ -199,3 +214,94 @@ The action menu for non-SA rows SHALL include a "Delete" option. Selecting it SH
 #### Scenario: Delete requires confirmation
 - **WHEN** an authorized user selects "Delete" on a non-SA row
 - **THEN** a confirmation dialog is shown before any DB change is made
+
+---
+
+### Requirement: Role hierarchy row locking
+Any row whose role rank is strictly higher than the acting user's role rank SHALL be rendered
+with the same locked treatment as the SA sentinel row: `irm-sa-row` class (muted background,
+reduced opacity), all inline controls disabled, and the action menu absent. Role ranks are:
+`sa`=3, `admin`=2, `faculty`=1, `user`=0. This rule is evaluated at render time per row and
+is independent of the sentinel and self-edit checks.
+
+#### Scenario: Admin sees a non-sentinel sa-role row with locked controls
+- **WHEN** the Users page is rendered for an `admin`-role actor
+- **AND** the table contains a non-sentinel user with `role = 'sa'`
+- **THEN** that row is rendered with `irm-sa-row` visual treatment (muted background)
+- **THEN** all inline controls (active toggle, role dropdown, SSO checkbox) are disabled
+- **THEN** the action menu is absent from that row
+
+#### Scenario: SA actor sees non-sentinel sa-role rows as editable
+- **WHEN** the Users page is rendered for an `sa`-role actor
+- **AND** the table contains a non-sentinel user with `role = 'sa'`
+- **THEN** that row's inline controls are enabled (subject only to the sentinel and self-edit rules)
+
+---
+
+### Requirement: Role hierarchy server guard
+Every mutation action (`toggle_active`, `update_role`, `toggle_sso`, `reset_password`, `delete`,
+`update_name`) SHALL be rejected with HTTP 403 if the target user's role rank is strictly greater
+than the acting user's role rank. This check is performed server-side in `guard_target()`,
+independently of any UI state.
+
+#### Scenario: Admin mutation of sa-role target is rejected
+- **WHEN** an `admin`-role user submits any mutation action targeting a user with `role = 'sa'`
+- **THEN** the server responds with HTTP 403
+- **THEN** no data is modified
+
+#### Scenario: SA mutation of admin-role target is permitted by hierarchy
+- **WHEN** an `sa`-role user submits a mutation action targeting a user with `role = 'admin'`
+- **THEN** the server does not reject the request on hierarchy grounds
+
+---
+
+### Requirement: Same-rank peer row locking
+Any row whose role rank equals the acting user's role rank — and is not the SA sentinel row and
+not the actor's own row — SHALL be rendered as a partially locked peer row: the `irm-peer-row`
+class SHALL be applied (muted background), all inline controls except the active toggle SHALL be
+disabled, and the action menu SHALL be absent. The active toggle SHALL remain enabled and
+functional. This check is evaluated at render time per row. `sa`-role actors are exempt: the
+same-rank rule does not apply when the actor role is `sa`.
+
+#### Scenario: Admin sees another admin row as partially locked
+- **WHEN** the Users page is rendered for an `admin`-role actor
+- **AND** the table contains a non-sentinel, non-own user with `role = 'admin'`
+- **THEN** that row is rendered with `irm-peer-row` visual treatment (muted background)
+- **THEN** the role dropdown, SSO checkbox are disabled on that row
+- **THEN** the action menu (Edit Name, Reset Password, Delete) is absent from that row
+- **THEN** the active toggle on that row is enabled and clickable
+
+#### Scenario: SA actor sees other sa-role rows as fully editable
+- **WHEN** the Users page is rendered for an `sa`-role actor
+- **AND** the table contains a non-sentinel user with `role = 'sa'`
+- **THEN** that row is not treated as a peer-locked row (same-rank rule does not apply to `sa`)
+- **THEN** inline controls are subject only to the existing sentinel and self-edit rules
+
+#### Scenario: Peer row active toggle is still operable
+- **WHEN** an `admin`-role actor clicks the active toggle on a peer `admin`-role row
+- **THEN** `auth_users.is_active` is toggled for that user
+- **THEN** the toggle visually reflects the new state
+
+---
+
+### Requirement: Same-rank peer server guard
+All mutation actions (`update_role`, `toggle_sso`, `reset_password`, `delete`, `update_name`)
+SHALL be rejected with HTTP 403 if the target user's role rank equals the acting user's role rank
+and the actor's role is not `sa`. The `toggle_active` action SHALL be exempt from this same-rank
+restriction and SHALL be permitted for same-rank targets (subject to the existing sentinel and
+self-edit guards).
+
+#### Scenario: Admin destructive action on peer admin is rejected
+- **WHEN** an `admin`-role user submits a `delete`, `reset_password`, `update_name`, `update_role`, or `toggle_sso` request targeting another user with `role = 'admin'`
+- **THEN** the server responds with HTTP 403
+- **THEN** no data is modified in `auth_users`
+
+#### Scenario: Admin toggle_active on peer admin is permitted
+- **WHEN** an `admin`-role user submits a `toggle_active` request targeting another user with `role = 'admin'`
+- **THEN** the server processes the request
+- **THEN** `auth_users.is_active` is updated for the target user
+
+#### Scenario: SA toggle_active on another sa-role user is permitted
+- **WHEN** an `sa`-role user submits a `toggle_active` request targeting a non-sentinel user with `role = 'sa'`
+- **THEN** the server processes the request (hierarchy and same-rank rules both pass)
+- **THEN** `auth_users.is_active` is updated for the target user

@@ -52,17 +52,20 @@ require __DIR__ . '/_layout.php';
         <tbody>
           <?php foreach ($users as $i => $u): ?>
           <?php
-            $is_sa = ($u['email'] === 'admin' && $u['role'] === 'sa');
-            $is_me = (int) $u['id'] === (int) $user['id'];
-            $locked = $is_sa || $is_me;
+            $is_sa     = ($u['email'] === 'admin' && $u['role'] === 'sa');
+            $is_me     = (int) $u['id'] === (int) $user['id'];
+            $is_higher = role_rank($u['role']) > role_rank($user['role']);
+            $is_peer   = !$is_sa && !$is_me && !$is_higher && $user['role'] !== 'sa' && (role_rank($u['role']) === role_rank($user['role']));
+            $locked    = $is_sa || $is_me || $is_higher;
+            $tr_class  = ($is_sa || $is_higher) ? 'irm-sa-row' : ($is_me ? 'irm-me-row' : ($is_peer ? 'irm-peer-row' : ''));
           ?>
-          <tr data-id="<?= (int) $u['id'] ?>"<?= $is_sa ? ' data-sa="1" class="irm-sa-row"' : ($is_me ? ' class="irm-me-row"' : '') ?>>
+          <tr data-id="<?= (int) $u['id'] ?>"<?= $is_sa ? ' data-sa="1"' : '' ?><?= $tr_class ? ' class="' . $tr_class . '"' : '' ?>>
 
             <!-- Serial -->
             <td class="ps-3 text-muted small"><?= $i + 1 ?></td>
 
             <!-- Active toggle -->
-            <td>
+            <td class="col-active">
               <div class="form-check form-switch mb-0">
                 <input type="checkbox"
                        class="form-check-input<?= $locked ? '' : ' js-toggle-active' ?>"
@@ -87,7 +90,7 @@ require __DIR__ . '/_layout.php';
 
             <!-- Role -->
             <td>
-              <?php if ($locked): ?>
+              <?php if ($locked || $is_peer): ?>
                 <span class="badge badge-role-<?= h($u['role']) ?>"><?= h(strtoupper($u['role'])) ?></span>
               <?php else: ?>
                 <select class="form-select form-select-sm js-role-select"
@@ -108,17 +111,17 @@ require __DIR__ . '/_layout.php';
             <td class="text-center">
               <div class="form-check mb-0 d-flex justify-content-center">
                 <input type="checkbox"
-                       class="form-check-input<?= $locked ? '' : ' js-toggle-sso' ?>"
+                       class="form-check-input<?= ($locked || $is_peer) ? '' : ' js-toggle-sso' ?>"
                        data-id="<?= (int) $u['id'] ?>"
                        <?= (int) $u['sso'] ? 'checked' : '' ?>
-                       <?= $locked ? 'disabled' : '' ?>
+                       <?= ($locked || $is_peer) ? 'disabled' : '' ?>
                        aria-label="SSO">
               </div>
             </td>
 
             <!-- Actions 3-dot menu -->
             <td>
-              <?php if (!$locked): ?>
+              <?php if (!$locked && !$is_peer): ?>
               <div class="dropdown">
                 <button class="btn btn-sm btn-link text-body text-decoration-none p-0 lh-1"
                         type="button"
@@ -205,10 +208,11 @@ require __DIR__ . '/_layout.php';
           <div class="mb-3">
             <label class="form-label" for="addRole">Role</label>
             <select id="addRole" name="role" class="form-select">
-              <option value="user" selected>User</option>
-              <option value="faculty">Faculty</option>
-              <option value="admin">Admin</option>
-              <option value="sa">Super Admin</option>
+              <?php foreach (['user' => 'User', 'faculty' => 'Faculty', 'admin' => 'Admin', 'sa' => 'Super Admin'] as $rv => $rl): ?>
+                <?php if (role_rank($rv) <= role_rank($user['role'])): ?>
+                  <option value="<?= h($rv) ?>"<?= $rv === 'user' ? ' selected' : '' ?>><?= h($rl) ?></option>
+                <?php endif; ?>
+              <?php endforeach; ?>
             </select>
           </div>
         </div>
@@ -250,6 +254,8 @@ require __DIR__ . '/_layout.php';
 .irm-sa-row { background-color: var(--irm-muted) !important; }
 .irm-sa-row td { opacity: .75; }
 .irm-me-row td { opacity: .65; }
+.irm-peer-row { background-color: var(--irm-muted) !important; }
+.irm-peer-row td:not(.col-active) { opacity: .75; }
 </style>
 
 <script>

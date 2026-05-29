@@ -37,7 +37,7 @@ function ajax_err(string $msg, int $code = 400): void
     exit;
 }
 
-function guard_target(int $id): array
+function guard_target(int $id, bool $block_same_rank = true): array
 {
     if ($id <= 0) ajax_err('Invalid user ID.');
     $target = user_get($id);
@@ -45,6 +45,8 @@ function guard_target(int $id): array
     if ($target['email'] === 'admin' && $target['role'] === 'sa') ajax_err('The SA account cannot be modified.', 403);
     $me = current_user();
     if ($me && (int) $me['id'] === $id) ajax_err('You cannot modify your own account from this page.', 403);
+    if ($me && role_rank($target['role']) > role_rank($me['role'])) ajax_err('Permission denied.', 403);
+    if ($block_same_rank && $me && $me['role'] !== 'sa' && role_rank($target['role']) === role_rank($me['role'])) ajax_err('Permission denied.', 403);
     return $target;
 }
 
@@ -64,6 +66,8 @@ switch ($action) {
         if (!in_array($role, ['sa', 'admin', 'faculty', 'user'], true)) {
             ajax_err('Invalid role selected.');
         }
+        $me = current_user();
+        if ($me && role_rank($role) > role_rank($me['role'])) ajax_err('Permission denied.', 403);
         if (user_email_exists($email)) ajax_err('That email address is already in use.');
         if (!$sso && !preg_match(PWD_REGEX, $pwd)) {
             ajax_err('Password must be 8+ characters with uppercase, number, and special character.');
@@ -79,7 +83,7 @@ switch ($action) {
         break;
 
     case 'toggle_active':
-        guard_target($id);
+        guard_target($id, block_same_rank: false);
         user_toggle_active($id);
         ajax_ok();
         break;
