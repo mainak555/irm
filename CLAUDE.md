@@ -123,7 +123,7 @@ Bootstrap 5.3. All component colors reference `--irm-*` tokens.
 | `faculty` | Faculty | Limited access |
 | `user` | User | Basic access |
 
-First account created at setup is always `sa` with username `admin`.
+First account created at setup is always `sa` with `email = 'admin'` (not a real email — this is the sentinel identifier used to log in).
 
 ---
 
@@ -169,6 +169,7 @@ Run `mysql < sql/schema.sql` to reset. **WARNING: drops existing tables.**
 | `config.php` | `.env` loader, `env()`, `cfg()`, `h()`, `db_dsn()`, `session_start()` |
 | `includes/db.php` | `db()` PDO singleton |
 | `includes/auth.php` | `require_auth()`, `current_user()`, `PWD_REGEX` |
+| `includes/audit.php` | `audit_by()` — returns current user ID for `created_by`/`updated_by` writes |
 | `includes/db_login.php` | `auth_user_*` functions |
 | `includes/db_profile.php` | `auth_user_update_password/theme` |
 | `includes/db_auth_config.php` | `auth_config_get/save/clear/toggle` |

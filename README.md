@@ -298,8 +298,12 @@ Navigate to `/admin/` and sign in. The sidebar groups all admin screens.
 The top navbar shows:
 - **Site title** (from `config/config.json`)
 - **Logged-in user name + role badge**
-- **Theme switcher** — Light / Dark / System (saves immediately)
+- **Theme switcher** — Light / Dark / System (saves immediately, returns to the current page)
 - **Logout** button
+
+### Sidebar
+
+The left sidebar is collapsible. Click the **`‹`** chevron on the sidebar's right edge to collapse it — the work area expands to full width. Click the **`›`** tab at the screen's left edge to pin it back open. While collapsed, hovering near the left edge reveals the sidebar as a floating overlay without pinning it. State is saved in `localStorage` and restored on every page load.
 
 ---
 
@@ -316,7 +320,7 @@ Roles are enforced server-side via `require_auth('sa', 'admin')` at the top of
 each restricted page. Unauthorized access returns a themed `403` page.
 
 The first account created at setup always gets the `sa` role. Additional users
-are created via the Users screen (once implemented).
+are created and managed via the **Users** screen (`sa` and `admin` roles).
 
 ---
 

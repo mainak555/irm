@@ -47,9 +47,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (in_array($theme, ['light', 'dark', 'system'], true)) {
             auth_user_update_theme((int) $user['id'], $theme);
             $_SESSION['auth']['theme'] = $theme;
-            $_SESSION['flash'] = ['type' => 'ok', 'msg' => 'Theme saved.'];
         }
-        header('Location: /admin/profile.php');
+        $back = $_POST['redirect'] ?? '';
+        $dest = (str_starts_with($back, '/admin/') && !str_contains($back, '//')) ? $back : '/admin/profile.php';
+        header('Location: ' . $dest);
         exit;
     }
 }

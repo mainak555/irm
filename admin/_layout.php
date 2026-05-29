@@ -85,6 +85,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <form method="post" action="/admin/profile.php" class="d-flex align-items-center gap-1">
       <input type="hidden" name="action" value="theme">
       <input type="hidden" name="csrf" value="<?= h($_SESSION['csrf'] ?? '') ?>">
+      <input type="hidden" name="redirect" value="<?= h($_SERVER['REQUEST_URI']) ?>">
       <select name="theme" class="form-select form-select-sm" style="width:auto"
               onchange="this.form.submit()" aria-label="Theme">
         <option value="light"  <?= $theme==='light'  ? 'selected' : '' ?>>Light</option>
@@ -97,10 +98,14 @@ document.addEventListener('DOMContentLoaded', function () {
   </div>
 </nav>
 
-<div class="admin-wrapper">
+<div class="admin-wrapper" id="adminWrapper">
+<script>
+if (localStorage.getItem('irm_sidebar') === 'collapsed')
+  document.getElementById('adminWrapper').classList.add('sidebar-collapsed');
+</script>
 
   <!-- Sidebar -->
-  <aside class="admin-sidebar px-2 py-2">
+  <aside class="admin-sidebar" id="adminSidebar">
     <div class="accordion accordion-flush" id="sidebarAccordion">
 
       <a class="nav-link <?= $current_page === 'index'   ? 'active' : '' ?>"
@@ -138,6 +143,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     </div>
   </aside>
+
+  <!-- Sidebar toggle chevron — straddles the sidebar right border -->
+  <button class="sidebar-toggle-btn" id="sidebarToggle" aria-label="Toggle sidebar">
+    <span class="sidebar-chevron">&#8249;</span>
+  </button>
+  <!-- Hover zone: thin strip at left edge, triggers floating sidebar when collapsed -->
+  <div class="sidebar-hover-zone" id="sidebarHoverZone" aria-hidden="true"></div>
 
   <!-- Main content -->
   <main class="admin-main">

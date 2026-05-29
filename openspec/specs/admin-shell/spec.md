@@ -64,7 +64,7 @@ The sidebar SHALL be implemented as a Bootstrap 5 accordion. It SHALL always con
 ---
 
 ### Requirement: Theme switching
-`/admin/profile.php` SHALL provide a theme selector with options: Light, Dark, System. On POST, the system SHALL update `auth_users.theme` and `$_SESSION['auth']['theme']` to the selected value, then redirect back to `profile.php`. The layout SHALL apply `data-bs-theme` based on the session value. For `system`, a synchronous `<script>` in `<head>` SHALL read `prefers-color-scheme` and set the attribute before Bootstrap loads, preventing flash of unstyled content.
+The system SHALL provide theme switching via two surfaces: a dropdown in the top navbar (available on every page) and a form on `/admin/profile.php`. Both submit to `/admin/profile.php` with `action=theme`. On POST, the system SHALL update `auth_users.theme` and `$_SESSION['auth']['theme']` to the selected value. The navbar form SHALL pass the originating page URL as a `redirect` parameter and the handler SHALL redirect back to that URL; the profile form SHALL redirect back to `/admin/profile.php`. The layout SHALL apply `data-bs-theme` based on the session value. For `system`, a synchronous `<script>` in `<head>` SHALL read `prefers-color-scheme` and set the attribute before Bootstrap loads, preventing flash of unstyled content.
 
 #### Scenario: User switches to dark theme
 - **WHEN** an authenticated user submits the theme switcher selecting 'dark'
@@ -135,24 +135,3 @@ The layout SHALL check `$_SESSION['flash']` at render time. If present, the mess
 - **WHEN** any admin page loads
 - **THEN** `window.IRM.formatUtcTs` is callable before the page's own `<script>` blocks execute (defined in `<head>`)
 
----
-
-### Requirement: Users placeholder page
-`/admin/users.php` SHALL call `require_auth('sa', 'admin')`. The page SHALL render a heading "Users" and a notice communicating that user management is coming soon. The page SHALL NOT render any table, form, or data rows.
-
-#### Scenario: Unauthenticated visitor redirected to login
-- **WHEN** an unauthenticated visitor navigates to `/admin/users.php`
-- **THEN** they are redirected to `/admin/login.php`
-
-#### Scenario: Insufficient role receives 403
-- **WHEN** a user with `role = 'faculty'` navigates to `/admin/users.php`
-- **THEN** the `admin/403.php` page is rendered with HTTP status 403
-
-#### Scenario: Admin sees the placeholder page
-- **WHEN** a user with `role = 'admin'` navigates to `/admin/users.php`
-- **THEN** the page renders with a "Users" heading and a coming-soon notice
-- **THEN** no table or form is present in the response
-
-#### Scenario: SA sees the placeholder page
-- **WHEN** a user with `role = 'sa'` navigates to `/admin/users.php`
-- **THEN** the page renders with a "Users" heading and a coming-soon notice

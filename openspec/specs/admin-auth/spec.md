@@ -109,12 +109,3 @@ Visiting `/admin/logout.php` SHALL call `session_destroy()`, clear the session c
 - **WHEN** the sa user submits a new password that fails any complexity rule
 - **THEN** the form is re-displayed with a validation error and the password is not changed
 
----
-
-### Requirement: Inactive account blocked at login
-A user with `is_active = 0` SHALL NOT be permitted to log in regardless of correct credentials.
-
-#### Scenario: Inactive account cannot log in
-- **WHEN** a user with `is_active=0` submits correct credentials
-- **THEN** the login page is re-displayed with an error indicating the account is not active
-- **THEN** no session is created

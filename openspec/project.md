@@ -29,7 +29,7 @@ This means:
 
 | Layer         | Choice                                                  |
 |---------------|---------------------------------------------------------|
-| Language      | PHP 8.0+ (`declare(strict_types=1)` everywhere)         |
+| Language      | PHP 8.2+ (`declare(strict_types=1)` everywhere)         |
 | Config        | `config.json` — parsed once, cached in a static helper  |
 | Database      | MySQL 5.7+ / MariaDB 10.3+, utf8mb4                    |
 | DB access     | PDO, `FETCH_ASSOC`, `EMULATE_PREPARES = false`          |
@@ -50,7 +50,7 @@ only by a human deployer.
 
 ```jsonc
 {
-  "site": {
+  "school": {
     "title":    "Your School Full Name",
     "subtitle": "Location — Established YYYY",
     "tagline":  "Optional one-line motto"
@@ -130,17 +130,20 @@ project-root/
 │   └── footer.php          # footer (reads quick_links + contact from config.json)
 │
 ├── admin/
-│   ├── _layout.php         # Sidebar + topbar; calls require_admin()
-│   ├── _layout_end.php     # Closes admin chrome
-│   ├── login.php           # Login form
+│   ├── _layout.php         # Admin chrome: topbar + collapsible sidebar (requires auth)
+│   ├── _layout_end.php     # Closes admin chrome, loads Bootstrap JS
+│   ├── login.php           # Login + first-launch setup form
 │   ├── logout.php          # Session destroy + redirect
-│   ├── index.php           # Dashboard (row counts)
-│   ├── menus.php           # CRUD — nav menu items
-│   ├── blocks.php          # Edit named HTML content blocks
-│   ├── links.php           # CRUD — popular links
-│   ├── news.php            # CRUD — news & events / notices
-│   ├── slides.php          # CRUD — hero carousel slides
-│   └── style.css           # Admin stylesheet (dark sidebar)
+│   ├── index.php           # Dashboard
+│   ├── profile.php         # Change password + theme preference
+│   ├── users.php           # User management (sa, admin)
+│   ├── auth_config.php     # OIDC provider configuration (sa only)
+│   ├── 403.php             # Access denied page
+│   ├── style.css           # Material Shadcn theme (light/dark tokens, Inter font)
+│   └── auth/
+│       ├── redirect.php    # Builds PKCE authorization URL → redirects to provider
+│       ├── callback.php    # OAuth callback handler
+│       └── error.php       # OIDC provisioning error page
 │
 └── assets/
     └── css/
@@ -158,7 +161,7 @@ The database holds **only content that changes at runtime**.
 
 | Table            | Purpose                                                   |
 |------------------|-----------------------------------------------------------|
-| `admin_users`    | Admin login accounts (username, bcrypt hash, role)        |
+| `auth_users`     | Admin login accounts (email/sentinel, bcrypt hash, role)  |
 | `menus`          | Primary nav items (label, slug, external flag, sort)      |
 | `pages`          | Generic content pages (slug, title, body_html)            |
 | `content_blocks` | Named HTML chunks in fixed home-page slots                |
@@ -183,7 +186,7 @@ lorem-style copy). Real content comes from `config.json` + admin panel.
 
 ```php
 // config.json helper — dot-notation access
-cfg('site.title')           // "Your School Full Name"
+cfg('school.title')         // "Your School Full Name"
 cfg('brand.colors.accent')  // "#b5451b"
 cfg('contact.phone')        // "+91 ..."
 
@@ -335,26 +338,30 @@ Only DB credentials and debug flag. **No school content here.**
 Features are added incrementally. The config.json schema grows as new
 configurable areas are identified.
 
-### Current (v0.1 — foundation)
+### Done (admin foundation)
+- [x] Admin authentication: login, logout, CSRF, session guard, role enforcement
+- [x] First-launch setup screen (creates SA account)
+- [x] Per-user theme preference (Light / Dark / System), stored in DB
+- [x] OIDC / PKCE SSO provider configuration (sa only)
+- [x] OIDC authorization redirect + callback handler
+- [x] User management page: list, add, edit, delete, role/SSO/active toggles
+- [x] Role hierarchy + creator-scoped same-rank peer protection
+- [x] Audit columns (`created_by`, `updated_by`, timestamps) on all tables
+- [x] Collapsible sidebar with floating hover-reveal mode
+
+### Current (v0.1 — public front-end)
 - [x] Public home page with carousel, welcome block, news list, popular links
 - [x] Generic `page.php` for content pages
 - [x] Admin CRUD: menus, blocks, links, news, slides
-- [x] `config.json` approach defined (migration from DB `settings` table pending)
+- [x] `config.json` / `cfg()` approach implemented
 
 ### Near-term (v0.2)
-- [ ] Implement `cfg()` helper (`includes/config.php`) and `config.json` / `config.json.example`
-- [ ] Migrate `includes/header.php` and `includes/footer.php` off `setting()` → `cfg()`
-- [ ] Inject CSS vars from `config.json` in `header.php`
-- [ ] Remove `settings` table and `admin/settings.php`
-- [ ] Remove `quick_links` table; read from `config.json`
 - [ ] `news.php` — public single-article view
 - [ ] `admin/pages.php` — CRUD for content pages (currently SQL-only)
+- [ ] Image upload in `admin/slides.php` (currently path/URL string)
 
 ### Future (v0.3+)
-- [ ] `admin/quick-links.php` editor that writes back to `config.json` (optional convenience)
-- [ ] Image upload in `admin/slides.php` (currently path/URL string)
 - [ ] WYSIWYG editor (TinyMCE) for `content_blocks` and `news` textareas
-- [ ] Admin user management page
 - [ ] Results module (DB table + admin upload + public view)
 - [ ] Gallery module
 - [ ] `config.json` schema validator / linter (CLI or admin page)
