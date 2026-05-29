@@ -36,6 +36,36 @@ $bs_theme_attr = ($theme === 'system') ? '' : ' data-bs-theme="' . h($theme) . '
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="/admin/style.css">
+<script>
+/* ------------------------------------------------------------------ *
+ * IRM timestamp utility                                               *
+ * Converts UTC "YYYY-MM-DD HH:MM:SS" strings to the browser's local  *
+ * timezone. Intl.DateTimeFormat uses the IANA tz database so DST     *
+ * (including US DST transitions) is handled automatically.           *
+ * ------------------------------------------------------------------ */
+window.IRM = window.IRM || {};
+window.IRM.formatUtcTs = function (isoStr) {
+  if (!isoStr) return '—';
+  // MySQL stores without timezone marker — append Z to parse as UTC
+  var d = new Date(String(isoStr).replace(' ', 'T') + 'Z');
+  if (isNaN(d.getTime())) return isoStr;
+  return new Intl.DateTimeFormat(navigator.language || undefined, {
+    day: '2-digit', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  }).format(d);
+};
+document.addEventListener('DOMContentLoaded', function () {
+  var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  document.querySelectorAll('[data-utc-ts]').forEach(function (el) {
+    var raw = el.dataset.utcTs;
+    if (raw) {
+      var local = window.IRM.formatUtcTs(raw);
+      el.textContent = local;
+      el.title = local + ' (' + tz + ')  ·  ' + raw + ' UTC';
+    }
+  });
+});
+</script>
 </head>
 <body class="grain-texture">
 

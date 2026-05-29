@@ -8,6 +8,7 @@
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
+SET time_zone = '+00:00';
 
 USE irm;
 
@@ -27,8 +28,12 @@ CREATE TABLE auth_users (
     is_active   TINYINT(1)      NOT NULL DEFAULT 1,
     sso         TINYINT(1)      NOT NULL DEFAULT 0,
     theme       ENUM('light','dark','system') NOT NULL DEFAULT 'system',
+    created_by  INT UNSIGNED    NULL,                   -- NULL = system / bootstrap
+    updated_by  INT UNSIGNED    NULL,
     created_at  TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at  TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at  TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_users_created_by FOREIGN KEY (created_by) REFERENCES auth_users(id) ON DELETE SET NULL,
+    CONSTRAINT fk_users_updated_by FOREIGN KEY (updated_by) REFERENCES auth_users(id) ON DELETE SET NULL
 ) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE auth_config (
@@ -42,8 +47,12 @@ CREATE TABLE auth_config (
     scopes        VARCHAR(500)  NOT NULL DEFAULT 'openid email profile',
     redirect_uri  VARCHAR(500)  NULL,                   -- override if needed; NULL = use default
     is_active     TINYINT(1)    NOT NULL DEFAULT 0,     -- must be explicitly enabled after config
+    created_by    INT UNSIGNED  NULL,                   -- NULL = system / bootstrap
+    updated_by    INT UNSIGNED  NULL,
     created_at    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_config_created_by FOREIGN KEY (created_by) REFERENCES auth_users(id) ON DELETE SET NULL,
+    CONSTRAINT fk_config_updated_by FOREIGN KEY (updated_by) REFERENCES auth_users(id) ON DELETE SET NULL
 ) DEFAULT CHARSET=utf8mb4;
 
 SET FOREIGN_KEY_CHECKS = 1;

@@ -262,6 +262,24 @@ DB/config values go through `h()`.
 - `cfg()` uses a static cache (reads `config.json` once per request).
 - `block()` uses a static cache (queries `content_blocks` once per request).
 
+### Audit Columns
+
+Every DB table carries four standard audit columns (see ADR-0015):
+
+| Column | Type | Rule |
+|--------|------|------|
+| `created_at` | TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP | Set once on insert; always UTC |
+| `updated_at` | TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP | Auto-updated on every write; always UTC |
+| `created_by` | INT UNSIGNED NULL FK → `auth_users.id` ON DELETE SET NULL | Populated via `audit_by()` at insert; `NULL` = system/bootstrap |
+| `updated_by` | INT UNSIGNED NULL FK → `auth_users.id` ON DELETE SET NULL | Populated via `audit_by()` at every write |
+
+UTC is enforced at two layers: `SET time_zone = '+00:00'` in `schema.sql` AND in every PDO connection (`includes/db.php`).
+
+**UI display standard:**
+- Only `updated_at` / `updated_by` is surfaced in the UI. `created_at` / `created_by` are stored but never shown.
+- Every timestamp element carries `data-utc-ts="[raw UTC string]"`. The global JS utility in `admin/_layout.php` converts it to the browser's local timezone on `DOMContentLoaded`. No inline timezone label — the tooltip contains `"[local time] ([IANA tz])  ·  [raw UTC] UTC"`.
+- Audit helper: `includes/audit.php` provides `audit_by(): ?int` — the single call site for all `created_by` / `updated_by` writes.
+
 ### CSS / Theming
 - **All** color and font values come from CSS custom properties set in `<head>`.
 - `site.css` references `var(--accent)`, `var(--navy)`, `var(--font-head)` etc. — never literal color values.

@@ -119,6 +119,24 @@ The layout SHALL check `$_SESSION['flash']` at render time. If present, the mess
 
 ---
 
+### Requirement: UTC timestamp display utility
+`admin/_layout.php` SHALL include a synchronous `<script>` in `<head>` that defines `window.IRM.formatUtcTs(isoStr)`. This function SHALL accept a MySQL UTC timestamp string (`YYYY-MM-DD HH:MM:SS`) and return it formatted in the browser's local timezone using `Intl.DateTimeFormat` with day, month, year, hour, and minute components — without any inline timezone label. On `DOMContentLoaded`, the layout SHALL query all elements carrying a `data-utc-ts` attribute, call `formatUtcTs` on the attribute value, replace the element's `textContent`, and set the element's `title` attribute to `"[local formatted time] ([IANA tz name])  ·  [raw UTC value] UTC"`. This utility is the sole mechanism for timestamp display across the entire admin panel; individual pages SHALL NOT implement their own timestamp formatting. See ADR-0015.
+
+#### Scenario: Timestamp element is formatted on page load
+- **WHEN** any admin page renders an element with `data-utc-ts="2026-01-15 09:00:00"`
+- **THEN** after `DOMContentLoaded` the element's text is the local-timezone equivalent (e.g. `15 Jan 2026, 14:30`)
+- **THEN** the element's `title` tooltip contains the local time, the IANA timezone (e.g. `Asia/Kolkata`), and the raw UTC string
+
+#### Scenario: Timezone label is not rendered inline
+- **WHEN** any `data-utc-ts` element is formatted
+- **THEN** the element's visible text contains no timezone label, offset, or abbreviation
+
+#### Scenario: Utility available globally before page JS runs
+- **WHEN** any admin page loads
+- **THEN** `window.IRM.formatUtcTs` is callable before the page's own `<script>` blocks execute (defined in `<head>`)
+
+---
+
 ### Requirement: Users placeholder page
 `/admin/users.php` SHALL call `require_auth('sa', 'admin')`. The page SHALL render a heading "Users" and a notice communicating that user management is coming soon. The page SHALL NOT render any table, form, or data rows.
 

@@ -108,6 +108,24 @@ The config page SHALL provide a Toggle action that flips `auth_config.is_active`
 
 ---
 
+### Requirement: Audit metadata display
+When an `auth_config` row exists, the page SHALL display a single-line audit trail below the save form showing "Last updated [timestamp] by [name]". The timestamp SHALL be converted to the browser's local timezone without an inline timezone label. A `title` tooltip on the timestamp element SHALL contain the local time, IANA timezone name, and raw UTC value. The `created_at` / `created_by` fields SHALL NOT be shown anywhere on this page. See ADR-0015.
+
+#### Scenario: Audit line shown when config exists
+- **WHEN** the SA user loads `/admin/auth_config.php` and an `auth_config` row exists
+- **THEN** a line reading "Last updated [local timestamp] by [name]" is present below the form
+- **THEN** hovering the timestamp shows the IANA timezone name and raw UTC value in the tooltip
+
+#### Scenario: Audit line absent when no config exists
+- **WHEN** the SA user loads `/admin/auth_config.php` and `auth_config` has zero rows
+- **THEN** no audit metadata line is present
+
+#### Scenario: Created fields not shown
+- **WHEN** the SA user loads `/admin/auth_config.php`
+- **THEN** no `created_at` or `created_by` information is rendered anywhere on the page
+
+---
+
 ### Requirement: Login page OIDC button state
 `/admin/login.php` SHALL always render the homegrown username/password form regardless of `auth_config` state. When `auth_config` has a row with `is_active = 1`, the page SHALL additionally render an SSO provider button below a visual separator. The SSO button SHALL link to `/admin/auth/redirect.php`. When `auth_config.icon_url` is non-NULL, the button SHALL render an `<img>` element with `src` set to `icon_url` to the left of the label text. When `icon_url` is NULL, the button SHALL render label text only with no image placeholder. When no active row exists (`auth_config` has zero rows or `is_active = 0`), no SSO button SHALL be rendered.
 

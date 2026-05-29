@@ -23,8 +23,9 @@ editing one JSON file.
 13. [Branding — config.json](#13-branding--configjson)
 14. [Folder Layout](#14-folder-layout)
 15. [Database Schema](#15-database-schema)
-16. [Security Notes](#16-security-notes)
-17. [Troubleshooting](#17-troubleshooting)
+16. [Audit Columns — created\_at / updated\_at / created\_by / updated\_by](#16-audit-columns--created_at--updated_at--created_by--updated_by)
+17. [Security Notes](#17-security-notes)
+18. [Troubleshooting](#18-troubleshooting)
 
 ---
 
@@ -514,8 +515,9 @@ irm/
 │   └── schema.sql            # DROP/CREATE auth_users + auth_config tables
 │
 ├── includes/
-│   ├── db.php                # PDO singleton — db()
+│   ├── db.php                # PDO singleton — db() (sets UTC timezone)
 │   ├── auth.php              # require_auth(), current_user(), PWD_REGEX
+│   ├── audit.php             # audit_by() — current user ID for created_by/updated_by
 │   ├── functions.php         # h(), public helper functions
 │   ├── db_login.php          # auth_user_count/find/create/update functions
 │   ├── db_profile.php        # auth_user_update_password/theme
@@ -560,7 +562,10 @@ Stores admin panel accounts.
 | `is_active` | TINYINT(1) | `0` = disabled, `1` = active |
 | `sso` | TINYINT(1) | `1` = SSO-only account (no password login) |
 | `theme` | ENUM(`light`,`dark`,`system`) | Per-user theme preference, default `system` |
-| `created_at` / `updated_at` | TIMESTAMP | Auto-managed |
+| `created_by` | INT UNSIGNED NULL FK → `auth_users.id` | Who created the record; `NULL` = system bootstrap |
+| `updated_by` | INT UNSIGNED NULL FK → `auth_users.id` | Who last modified the record; `NULL` = system |
+| `created_at` | TIMESTAMP | Set once on insert; always UTC |
+| `updated_at` | TIMESTAMP | Auto-updated on every change; always UTC |
 
 > **Login identifiers:** the SA account logs in with the string `admin`; all other users log in with their email address. The login field is labelled "Email / Username".
 
@@ -580,13 +585,132 @@ Stores a single OIDC / SAML provider configuration.
 | `scopes` | VARCHAR(500) | Default `openid email profile` |
 | `redirect_uri` | VARCHAR(500) NULL | Override redirect URI; `NULL` = auto-detect from request |
 | `is_active` | TINYINT(1) | `0` = hidden, `1` = shown on login page |
-| `created_at` / `updated_at` | TIMESTAMP | Auto-managed |
+| `created_by` | INT UNSIGNED NULL FK → `auth_users.id` | Who created the config row; `NULL` = system |
+| `updated_by` | INT UNSIGNED NULL FK → `auth_users.id` | Who last saved/toggled the config |
+| `created_at` | TIMESTAMP | Set once on insert; always UTC |
+| `updated_at` | TIMESTAMP | Auto-updated on every change; always UTC |
 
 > Only one provider row is supported at a time (the table is replaced on save).
 
 ---
 
-## 16. Security Notes
+## 16. Audit Columns — created\_at / updated\_at / created\_by / updated\_by
+
+Every table in IRM carries four standard audit columns.
+
+### What they store
+
+| Column | Storage | Populated by |
+|---|---|---|
+| `created_at` | UTC TIMESTAMP | MySQL `DEFAULT CURRENT_TIMESTAMP` |
+| `updated_at` | UTC TIMESTAMP | MySQL `ON UPDATE CURRENT_TIMESTAMP` |
+| `created_by` | INT UNSIGNED NULL (FK → `auth_users.id`) | `audit_by()` at insert time |
+| `updated_by` | INT UNSIGNED NULL (FK → `auth_users.id`) | `audit_by()` at every write |
+
+`NULL` in `created_by` / `updated_by` means the record was created by the system (e.g., the initial super-admin bootstrap, or a migration).
+
+### UTC storage
+
+All timestamps are stored in UTC. This is enforced at two levels:
+
+1. **`sql/schema.sql`** — `SET time_zone = '+00:00'` at the top of the file so `CURRENT_TIMESTAMP` defaults are UTC when the schema is imported.
+2. **`includes/db.php`** — `$pdo->exec("SET time_zone = '+00:00'")` runs on every PDO connection, regardless of the MySQL server's configured timezone.
+
+This means you can deploy on a server running any local timezone and timestamps will always be stored consistently as UTC.
+
+### UI display standard — show only Updated
+
+Only `updated_at` / `updated_by` is surfaced in the admin UI. `created_at` and `created_by` are stored in the database and available for queries but are **never shown** in any table column, form footer, or detail panel.
+
+### Display — browser local timezone with DST
+
+Timestamps are never formatted on the server. In the admin UI, every timestamp element carries a `data-utc-ts` attribute containing the raw UTC string from the database:
+
+```html
+<span data-utc-ts="<?= h($row['updated_at']) ?>">—</span>
+```
+
+The JavaScript utility defined in `admin/_layout.php` (`window.IRM.formatUtcTs`) converts these to the **browser's local timezone** on `DOMContentLoaded`:
+
+```javascript
+// Converts "YYYY-MM-DD HH:MM:SS" (UTC) to the visitor's local time.
+// Intl.DateTimeFormat uses the IANA tz database — DST transitions
+// (including US EST/EDT, PST/PDT, etc.) are handled automatically.
+window.IRM.formatUtcTs = function (isoStr) { ... };
+```
+
+The rendered text shows **date and time only** — no inline timezone label (avoids `GMT+5:30` clutter). The full context is available as a `title` tooltip on hover:
+
+```
+29 May 2026, 14:30 (Asia/Kolkata)  ·  2026-05-29 09:00:00 UTC
+```
+
+The tooltip carries: local formatted time · IANA timezone name (unambiguous, DST-aware) · raw UTC value.
+
+### Adding audit columns to a new table
+
+Follow this pattern:
+
+**SQL:**
+```sql
+CREATE TABLE my_table (
+    id         INT UNSIGNED  AUTO_INCREMENT PRIMARY KEY,
+    -- ... your columns ...
+    created_by INT UNSIGNED  NULL,
+    updated_by INT UNSIGNED  NULL,
+    created_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_my_table_created_by FOREIGN KEY (created_by) REFERENCES auth_users(id) ON DELETE SET NULL,
+    CONSTRAINT fk_my_table_updated_by FOREIGN KEY (updated_by) REFERENCES auth_users(id) ON DELETE SET NULL
+) DEFAULT CHARSET=utf8mb4;
+```
+
+**PHP — insert:**
+```php
+require_once __DIR__ . '/audit.php';   // provides audit_by()
+
+$by = audit_by();
+$st = db()->prepare(
+    'INSERT INTO my_table (..., created_by, updated_by)
+     VALUES (..., :created_by, :updated_by)'
+);
+$st->execute([..., ':created_by' => $by, ':updated_by' => $by]);
+```
+
+**PHP — update:**
+```php
+$st = db()->prepare(
+    'UPDATE my_table SET field = :val, updated_by = :by WHERE id = :id'
+);
+$st->execute([':val' => $value, ':by' => audit_by(), ':id' => $id]);
+```
+
+**PHP — read (join for display names):**
+```php
+$rows = db()->query(
+    'SELECT t.*,
+            c.name  AS created_by_name,
+            up.name AS updated_by_name
+     FROM my_table t
+     LEFT JOIN auth_users c  ON c.id  = t.created_by
+     LEFT JOIN auth_users up ON up.id = t.updated_by'
+)->fetchAll();
+```
+
+**HTML — display timestamp (Updated only):**
+```html
+<span data-utc-ts="<?= h($row['updated_at']) ?>">—</span>
+<!-- JS auto-replaces "—" with local time; tooltip shows full tz + UTC -->
+<?php if (!empty($row['updated_by_name'])): ?>
+  <div style="font-size:.7rem;opacity:.7"><?= h($row['updated_by_name']) ?></div>
+<?php endif; ?>
+```
+
+> `created_at` / `created_by` are stored but not rendered. Do not add a "Created" column or line to new UI — see ADR-0015.
+
+---
+
+## 17. Security Notes
 
 - **CSRF**: Every admin POST form carries a per-session CSRF token
   (`$_SESSION['csrf']`). The token is validated with `hash_equals()` before
@@ -609,7 +733,7 @@ Stores a single OIDC / SAML provider configuration.
 
 ---
 
-## 17. Troubleshooting
+## 18. Troubleshooting
 
 ### Blank page / 500 error
 

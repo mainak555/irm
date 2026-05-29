@@ -46,6 +46,7 @@ require __DIR__ . '/_layout.php';
             <th>Email</th>
             <th style="width:11rem">Role</th>
             <th style="width:4rem" class="text-center">SSO</th>
+            <th style="width:9rem">Updated</th>
             <th style="width:3rem"></th>
           </tr>
         </thead>
@@ -119,6 +120,14 @@ require __DIR__ . '/_layout.php';
               </div>
             </td>
 
+            <!-- Updated -->
+            <td class="text-muted" style="font-size:.78rem;white-space:nowrap;line-height:1.3">
+              <span data-utc-ts="<?= h($u['updated_at']) ?>">—</span>
+              <?php if (!empty($u['updated_by_name'])): ?>
+                <div style="font-size:.7rem;opacity:.7"><?= h($u['updated_by_name']) ?></div>
+              <?php endif; ?>
+            </td>
+
             <!-- Actions 3-dot menu -->
             <td>
               <?php if (!$locked && !$is_peer): ?>
@@ -154,7 +163,7 @@ require __DIR__ . '/_layout.php';
           </tr>
           <?php endforeach; ?>
           <?php if (empty($users)): ?>
-          <tr><td colspan="7" class="text-center text-muted py-4">No users found.</td></tr>
+          <tr><td colspan="8" class="text-center text-muted py-4">No users found.</td></tr>
           <?php endif; ?>
         </tbody>
       </table>

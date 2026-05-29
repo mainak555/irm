@@ -197,4 +197,14 @@ require __DIR__ . '/_layout.php';
   </div>
 </div>
 
+<?php if ($config): ?>
+<div class="mt-3 text-muted" style="font-size:.78rem;max-width:640px">
+  Last updated
+  <span data-utc-ts="<?= h($config['updated_at']) ?>">—</span>
+  <?php if (!empty($config['updated_by_name'])): ?>
+    by <strong><?= h($config['updated_by_name']) ?></strong>
+  <?php endif; ?>
+</div>
+<?php endif; ?>
+
 <?php require __DIR__ . '/_layout_end.php'; ?>

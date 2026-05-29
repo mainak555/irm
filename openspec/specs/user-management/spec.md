@@ -29,7 +29,7 @@ The system SHALL display all rows from `auth_users` in a paginated Material Shad
 
 #### Scenario: Table shows all users
 - **WHEN** `auth_users` contains N rows
-- **THEN** the table renders all N rows with columns: Serial, Active, Name, Email, Role, SSO, Actions
+- **THEN** the table renders all N rows with columns: Serial, Active, Name, Email, Role, SSO, Updated, Actions
 
 ---
 
@@ -214,6 +214,21 @@ The action menu for non-SA rows SHALL include a "Delete" option. Selecting it SH
 #### Scenario: Delete requires confirmation
 - **WHEN** an authorized user selects "Delete" on a non-SA row
 - **THEN** a confirmation dialog is shown before any DB change is made
+
+---
+
+### Requirement: Updated column
+The Users table SHALL include an "Updated" column showing `auth_users.updated_at` converted to the browser's local timezone and `auth_users.updated_by` resolved to the modifier's display name. The column SHALL NOT show a timezone label inline; the full context (local time, IANA timezone name, raw UTC) SHALL be available as a `title` tooltip. The `created_at` and `created_by` columns SHALL be stored in the database but SHALL NOT be surfaced in the table or any other UI element on this page. See ADR-0015.
+
+#### Scenario: Updated column shows local timestamp and actor
+- **WHEN** the Users page renders a row whose `updated_at` is non-null
+- **THEN** the Updated cell displays the timestamp in the browser's local timezone without a timezone label
+- **THEN** hovering over the timestamp shows a tooltip containing the local time, the IANA timezone name, and the raw UTC value
+- **THEN** if `updated_by` resolves to a user name, that name is shown beneath the timestamp in the Updated cell
+
+#### Scenario: Created timestamp not shown
+- **WHEN** the Users page renders
+- **THEN** no "Created" column, `created_at` value, or `created_by` name is present in the table output
 
 ---
 
