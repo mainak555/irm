@@ -1,0 +1,39 @@
+schema: spec-driven
+
+context: |
+  Project: Open School CMS — see openspec/project.md for the full reference.
+
+  TWO-TIER CONFIG (critical to understand):
+  - config.json  → school identity & branding: title, address, about text,
+                   color scheme, fonts, social URLs, footer copy, quick links.
+                   Read via cfg('key.subkey') helper (includes/config.php).
+                   Never written by PHP. Edited by the deployer.
+  - MySQL DB     → runtime content only: news/notices, hero slides, nav menus,
+                   content blocks, popular links, pages, admin users.
+
+  NO settings table. NO quick_links table. Both are replaced by config.json.
+  setting() helper is REMOVED — use cfg() for all branding/identity lookups.
+
+  DB tables (7): admin_users, menus, pages, content_blocks,
+                 hero_slides, popular_links, news.
+
+  Tech: PHP 8.0+, PDO, MySQL 5.7+ / MariaDB 10.3+, vanilla JS/CSS, no Composer.
+  Auth: PHP sessions + bcrypt. CSRF on every admin POST form.
+  CSS: all colors/fonts are CSS custom properties injected from config.json in header.php.
+  h() wraps every DB/config value rendered to HTML — except body_html (trusted admin HTML).
+  declare(strict_types=1) on every PHP file. require_once for includes.
+  PDO named placeholders only — no SQL string interpolation ever.
+  Flash: $_SESSION['flash'] = ['type'=>'ok'|'err', 'msg'=>'…'].
+  DB credentials in .env only. config.json has no secrets.
+
+rules:
+  proposal:
+    - Must Use grill-me skill
+  design:
+    - Must use c4-diagram skill
+    - Must use architecture-decision-records skill
+  specs:
+    - Must use gherkin-authoring skill
+  tasks:
+    - Each task must map to a single file or a tightly scoped DB + PHP pair.
+    - Tasks that add a new admin page must include: POST handler, CSRF check, require_admin, flash message, _layout include.

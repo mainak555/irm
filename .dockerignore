@@ -1,0 +1,13 @@
+# Secrets — supplied at runtime via --env-file, never baked into the image
+.env
+.env.local
+.env.production
+
+# Dev tooling — not needed at runtime
+.git/
+.gitignore
+.claude/
+openspec/
+
+# Static design previews — not served by the app
+*.html

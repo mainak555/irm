@@ -1,0 +1,268 @@
+<mxfile host="app.diagrams.net" agent="C4 Diagram Skill" version="24.0.0" type="device">
+  <diagram id="c4-admin-auth" name="C4 Container Diagram - Admin Auth Foundation">
+    <mxGraphModel dx="1422" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- ======================================== -->
+        <!-- LAYER 1: Person (y=30)                   -->
+        <!-- ======================================== -->
+
+        <mxCell id="person_1"
+          value=""
+          style="shape=actor;whiteSpace=wrap;html=1;fillColor=#08427B;strokeColor=#052E56;"
+          vertex="1" parent="1">
+          <mxGeometry x="530" y="30" width="40" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="person_1_label"
+          value="&lt;b&gt;Admin / SA User&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:10px;color:#666666&quot;&gt;[Person]&lt;/font&gt;&lt;br/&gt;&lt;font style=&quot;font-size:10px;color:#666666&quot;&gt;Manages OIDC config, profile, and admin content.&lt;/font&gt;"
+          style="text;html=1;fontSize=12;align=center;verticalAlign=top;"
+          vertex="1" parent="1">
+          <mxGeometry x="430" y="98" width="220" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- ======================================== -->
+        <!-- LAYER 2: System Boundary (y=220)         -->
+        <!-- ======================================== -->
+
+        <mxCell id="boundary_1"
+          value="IRM Admin System [Software System]"
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#444444;strokeWidth=2;dashed=1;fontSize=14;fontStyle=1;verticalAlign=top;align=left;spacingLeft=10;spacingTop=10;fontColor=#444444;"
+          vertex="1" parent="1">
+          <mxGeometry x="50" y="220" width="1050" height="440" as="geometry"/>
+        </mxCell>
+
+        <!-- DB Functions (left-top) x=100, y=280 -->
+        <mxCell id="container_db_fns"
+          value="&lt;b&gt;DB Functions&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:11px&quot;&gt;[Container: PHP]&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;&lt;font style=&quot;font-size:11px&quot;&gt;db_login.php, db_profile.php, db_auth_config.php. Domain-scoped PDO query functions.&lt;/font&gt;"
+          style="rounded=1;whiteSpace=wrap;html=1;container=0;fillColor=#438DD5;fontColor=#ffffff;strokeColor=none;fontSize=13;align=center;"
+          vertex="1" parent="1">
+          <mxGeometry x="100" y="280" width="240" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Admin Pages (center) x=420, y=320 -->
+        <mxCell id="container_admin"
+          value="&lt;b&gt;Admin Pages&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:11px&quot;&gt;[Container: PHP]&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;&lt;font style=&quot;font-size:11px&quot;&gt;login, logout, index, profile, auth_config, 403. Rendered server-side, Bootstrap 5.3 UI.&lt;/font&gt;"
+          style="rounded=1;whiteSpace=wrap;html=1;container=0;fillColor=#438DD5;fontColor=#ffffff;strokeColor=none;fontSize=13;align=center;"
+          vertex="1" parent="1">
+          <mxGeometry x="420" y="320" width="240" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Auth Layer (right-top) x=740, y=280 -->
+        <mxCell id="container_auth"
+          value="&lt;b&gt;Auth Layer&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:11px&quot;&gt;[Container: PHP]&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;&lt;font style=&quot;font-size:11px&quot;&gt;includes/auth.php. require_auth(...$roles), current_user() — role-based session guard.&lt;/font&gt;"
+          style="rounded=1;whiteSpace=wrap;html=1;container=0;fillColor=#438DD5;fontColor=#ffffff;strokeColor=none;fontSize=13;align=center;"
+          vertex="1" parent="1">
+          <mxGeometry x="740" y="280" width="240" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- MySQL Database (left-bottom, cylinder) x=100, y=470 -->
+        <mxCell id="db_mysql"
+          value="&lt;b&gt;MySQL Database&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:11px&quot;&gt;[Container: MySQL 5.7+]&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;&lt;font style=&quot;font-size:11px&quot;&gt;auth_users, auth_config, menus, pages, content_blocks, hero_slides, news.&lt;/font&gt;"
+          style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#438DD5;fontColor=#ffffff;strokeColor=none;fontSize=13;align=center;"
+          vertex="1" parent="1">
+          <mxGeometry x="100" y="470" width="240" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Session Store (right-bottom) x=740, y=470 -->
+        <mxCell id="container_session"
+          value="&lt;b&gt;Session Store&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:11px&quot;&gt;[Container: PHP Sessions]&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;&lt;font style=&quot;font-size:11px&quot;&gt;$_SESSION['auth']: id, email, name, role, theme. Server-side session file.&lt;/font&gt;"
+          style="rounded=1;whiteSpace=wrap;html=1;container=0;fillColor=#438DD5;fontColor=#ffffff;strokeColor=none;fontSize=13;align=center;"
+          vertex="1" parent="1">
+          <mxGeometry x="740" y="470" width="240" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- ======================================== -->
+        <!-- LAYER 3: External Systems (y=760)        -->
+        <!-- ======================================== -->
+
+        <!-- OIDC Provider (left of center) x=260, y=760 -->
+        <mxCell id="ext_oidc"
+          value="&lt;b&gt;OIDC Provider&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:11px&quot;&gt;[External System]&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;&lt;font style=&quot;font-size:11px&quot;&gt;Google, Okta. Handles SSO login for faculty and user roles. (Future)&lt;/font&gt;"
+          style="rounded=1;whiteSpace=wrap;html=1;container=0;fillColor=#999999;fontColor=#ffffff;strokeColor=none;fontSize=13;align=center;"
+          vertex="1" parent="1">
+          <mxGeometry x="260" y="760" width="240" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Bootstrap 5.3 CDN (right of center) x=560, y=760 -->
+        <mxCell id="ext_bootstrap"
+          value="&lt;b&gt;Bootstrap 5.3 CDN&lt;/b&gt;&lt;br/&gt;&lt;font style=&quot;font-size:11px&quot;&gt;[External System]&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;&lt;font style=&quot;font-size:11px&quot;&gt;cdn.jsdelivr.net. CSS framework loaded by browser for admin UI rendering.&lt;/font&gt;"
+          style="rounded=1;whiteSpace=wrap;html=1;container=0;fillColor=#999999;fontColor=#ffffff;strokeColor=none;fontSize=13;align=center;"
+          vertex="1" parent="1">
+          <mxGeometry x="560" y="760" width="240" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- ======================================== -->
+        <!-- CONNECTIONS                               -->
+        <!-- ======================================== -->
+
+        <!-- 1. Person → Admin Pages: HTTP/S requests -->
+        <mxCell id="conn_1"
+          value="Sends requests [HTTPS]"
+          style="endArrow=blockThin;endFill=1;fontSize=10;fontColor=#404040;strokeColor=#404040;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;"
+          edge="1" source="person_1" target="container_admin" parent="1">
+          <mxGeometry y="-15" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 2. Admin Pages → Auth Layer: require_auth() guard -->
+        <mxCell id="conn_2"
+          value="require_auth() guard call [PHP]"
+          style="endArrow=blockThin;endFill=1;fontSize=10;fontColor=#404040;strokeColor=#404040;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;"
+          edge="1" source="container_admin" target="container_auth" parent="1">
+          <mxGeometry y="-15" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 3. Auth Layer → Session Store: read/write session -->
+        <mxCell id="conn_3"
+          value="Reads/writes auth data [PHP Session]"
+          style="endArrow=blockThin;endFill=1;fontSize=10;fontColor=#404040;strokeColor=#404040;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;"
+          edge="1" source="container_auth" target="container_session" parent="1">
+          <mxGeometry x="-30" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 4. Admin Pages → DB Functions: call domain functions -->
+        <mxCell id="conn_4"
+          value="Calls domain query functions [PHP]"
+          style="endArrow=blockThin;endFill=1;fontSize=10;fontColor=#404040;strokeColor=#404040;labelBackgroundColor=#ffffff;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;"
+          edge="1" source="container_admin" target="container_db_fns" parent="1">
+          <mxGeometry y="-15" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 5. DB Functions → MySQL DB: PDO queries -->
+        <mxCell id="conn_5"
+          value="Executes queries [PDO/SQL]"
+          style="endArrow=blockThin;endFill=1;fontSize=10;fontColor=#404040;strokeColor=#404040;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;"
+          edge="1" source="container_db_fns" target="db_mysql" parent="1">
+          <mxGeometry x="-30" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 6. Admin Pages → OIDC Provider: redirect for SSO (dashed, future) -->
+        <mxCell id="conn_6"
+          value="Redirects for SSO login [HTTPS/OIDC] (future)"
+          style="endArrow=blockThin;endFill=1;fontSize=10;fontColor=#404040;strokeColor=#404040;dashed=1;dashPattern=5 5;labelBackgroundColor=#ffffff;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;"
+          edge="1" source="container_admin" target="ext_oidc" parent="1">
+          <mxGeometry y="15" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 7. Admin Pages → Bootstrap CDN: load CSS (dashed, browser-side) -->
+        <mxCell id="conn_7"
+          value="Outputs &lt;link&gt; tag, browser loads CSS [HTTPS]"
+          style="endArrow=blockThin;endFill=1;fontSize=10;fontColor=#404040;strokeColor=#404040;dashed=1;dashPattern=5 5;labelBackgroundColor=#ffffff;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;"
+          edge="1" source="container_admin" target="ext_bootstrap" parent="1">
+          <mxGeometry y="15" relative="1" as="geometry">
+            <mxPoint as="offset"/>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ======================================== -->
+        <!-- LEGEND (bottom-right)                    -->
+        <!-- ======================================== -->
+
+        <mxCell id="legend_bg"
+          value=""
+          style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F5F5F5;strokeColor=#CCCCCC;fontSize=12;"
+          vertex="1" parent="1">
+          <mxGeometry x="1250" y="720" width="290" height="210" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_title"
+          value="&lt;b&gt;Legend&lt;/b&gt;"
+          style="text;html=1;fontSize=13;fontColor=#333333;align=left;verticalAlign=top;"
+          vertex="1" parent="1">
+          <mxGeometry x="1260" y="726" width="100" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_person_box"
+          value=""
+          style="rounded=0;whiteSpace=wrap;html=1;fillColor=#08427B;strokeColor=none;"
+          vertex="1" parent="1">
+          <mxGeometry x="1260" y="752" width="16" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_person_label"
+          value="Person"
+          style="text;html=1;fontSize=11;fontColor=#333333;align=left;verticalAlign=middle;"
+          vertex="1" parent="1">
+          <mxGeometry x="1284" y="750" width="100" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_container_box"
+          value=""
+          style="rounded=0;whiteSpace=wrap;html=1;fillColor=#438DD5;strokeColor=none;"
+          vertex="1" parent="1">
+          <mxGeometry x="1260" y="776" width="16" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_container_label"
+          value="Container"
+          style="text;html=1;fontSize=11;fontColor=#333333;align=left;verticalAlign=middle;"
+          vertex="1" parent="1">
+          <mxGeometry x="1284" y="774" width="100" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_db_box"
+          value=""
+          style="shape=cylinder3;whiteSpace=wrap;html=1;size=4;fillColor=#438DD5;strokeColor=none;"
+          vertex="1" parent="1">
+          <mxGeometry x="1260" y="800" width="16" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_db_label"
+          value="Database"
+          style="text;html=1;fontSize=11;fontColor=#333333;align=left;verticalAlign=middle;"
+          vertex="1" parent="1">
+          <mxGeometry x="1284" y="798" width="100" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_ext_box"
+          value=""
+          style="rounded=0;whiteSpace=wrap;html=1;fillColor=#999999;strokeColor=none;"
+          vertex="1" parent="1">
+          <mxGeometry x="1260" y="824" width="16" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_ext_label"
+          value="External System"
+          style="text;html=1;fontSize=11;fontColor=#333333;align=left;verticalAlign=middle;"
+          vertex="1" parent="1">
+          <mxGeometry x="1284" y="822" width="120" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_sync_line"
+          value=""
+          style="endArrow=blockThin;endFill=1;strokeColor=#404040;"
+          edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1260" y="852" as="sourcePoint"/>
+            <mxPoint x="1310" y="852" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend_sync_label"
+          value="Synchronous"
+          style="text;html=1;fontSize=11;fontColor=#333333;align=left;verticalAlign=middle;"
+          vertex="1" parent="1">
+          <mxGeometry x="1316" y="842" width="100" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_async_line"
+          value=""
+          style="endArrow=blockThin;endFill=1;strokeColor=#404040;dashed=1;dashPattern=5 5;"
+          edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1260" y="876" as="sourcePoint"/>
+            <mxPoint x="1310" y="876" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend_async_label"
+          value="Asynchronous / Future"
+          style="text;html=1;fontSize=11;fontColor=#333333;align=left;verticalAlign=middle;"
+          vertex="1" parent="1">
+          <mxGeometry x="1316" y="866" width="130" height="20" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

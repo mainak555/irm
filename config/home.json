@@ -1,0 +1,56 @@
+{
+  "about": "The Boys' Home started to serve its activities with 37 orphanage boys, on 16th August, 1944, under the shadow of founder Secretary Monk Late Swami Punyanandaji Maharaj. Beside general stream education, Ashrama has started an Industrial Training Centre (formerly named Junior Technical School) since 1957 for the benefit of Ashrama boys' who are unable to continue their studies in the general stream.",
+
+  "welcome": {
+    "heading": "Welcome to this Holy Institution",
+    "body": [
+      "The Ramakrishna Mission Industrial Training Centre, Rahara, is a branch of Ramakrishna Mission Boys' Home, Rahara which is one of the branch centres of Ramakrishna Math & Ramakrishna Mission, Belur, Howrah.",
+      "Established in 1957 as Junior Technical School, it had been running as a 3-year course in different Engineering Trades, open to Class VIII passed students in the age group between 14 and 17 years, leading to the Junior Diploma in Engineering awarded by the State Council for Engineering and Technical Education, West Bengal."
+    ]
+  },
+
+  "section_cols": 4,
+  "sections": [
+    {
+      "type": "text",
+      "heading": "Life @ RKMBHITC",
+      "img": "assets/img/life.jpg",
+      "body": [
+        "The Institute offers opportunities to all its students to indulge in a wide range of co-curricular activities like football, volley ball, cricket, drawing, essay, recitation, wall magazine etc.",
+        "We celebrate Sri Sri Ramakrishna Deva Janamatithi in a grand manner with procession by all the school, college and other departments of the Ashrama."
+      ],
+      "url": null
+    },
+    {
+      "type": "text",
+      "heading": "Eco Campus",
+      "img": "assets/img/eco.jpg",
+      "body": [
+        "Ramakrishna Mission Boys' Home Industrial Training Centre, Rahara, is a centre of Industrial Training under Department of Director of Industrial Training, West Bengal. The Institution is located at Rahara, 20Km from Sealdah, Kolkata.",
+        "Established in 1958, it has a great experience in the field of education for more than 70 years."
+      ],
+      "url": null
+    },
+    {
+      "type": "video",
+      "heading": "Take The Virtual Tour",
+      "provider": "youtube",
+      "url": "",
+      "body": [
+        "A guided video tour of the workshops, hostels, library, computer labs and the campus grounds."
+      ]
+    },
+    {
+      "type": "links",
+      "heading": "Most Popular Links",
+      "body": [],
+      "url": null
+    }
+  ],
+
+  "partners": [
+    {"img": "assets/img/partner-dgt.png",        "alt": "DGT",         "label": "Directorate General of Training"},
+    {"img": "assets/img/partner-skill-india.png", "alt": "Skill India", "label": "Skill India"},
+    {"img": "assets/img/partner-iti.png",         "alt": "ITI",         "label": "Industrial Training Institute"}
+  ]
+}

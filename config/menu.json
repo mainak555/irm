@@ -1,0 +1,10 @@
+[
+  {"label": "Home",              "slug": "home",      "sort_order": 10},
+  {"label": "Courses",           "slug": "courses",   "sort_order": 20},
+  {"label": "Admission",         "slug": "admission", "sort_order": 30},
+  {"label": "Faculty & Staff",   "slug": "faculty",   "sort_order": 40},
+  {"label": "Results",           "slug": "results",   "sort_order": 50},
+  {"label": "Placement",         "slug": "placement", "sort_order": 60},
+  {"label": "Gallery",           "slug": "gallery",   "sort_order": 70},
+  {"label": "About Institution", "slug": "about",     "sort_order": 80}
+]

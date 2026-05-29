@@ -1,0 +1,45 @@
+{
+  "school": {
+    "title": "Ramakrishna Mission Boys' Home Industrial Training Centre",
+    "subtitle": "Rahara, Kolkata — Established 1957",
+    "address": "Ramakrishna Mission Boys' Home\nP.O.- Rahara, P.S.- Khardah\nKolkata, West Bengal, India\nPIN- 700118",
+    "phone": "+91 33 2568-2850 / 3219",
+    "fax": "+91 33 2568-0030",
+    "email": "email@rkmbhitc.org",
+    "social": {
+      "facebook": "https://facebook.com/"
+    }
+  },
+  "colors": {
+    "cream": "#f4f1e8",
+    "cream-2": "#ece8db",
+    "paper": "#ffffff",
+    "rule": "#c9c3b1",
+    "rule-soft": "#ded8c5",
+    "ink": "#1f1d18",
+    "ink-2": "#2c2a23",
+    "muted": "#5e5a4f",
+    "link": "#a14a2a",
+    "link-hover": "#7a3318",
+    "accent": "#6e7a44",
+    "accent-2": "#4f5a30",
+    "tab-edge": "#b6ae93",
+    "footer": "#15171b",
+    "footer-2": "#1c1f24",
+    "footer-text": "#c8c7c2",
+    "news-blue": "#2d4ea8"
+  },
+  "footer": {
+    "copyright": "Copyright © 2026 — All Rights Reserved",
+    "powered_by": "Powered by: School CMS (PHP · MySQL)",
+    "quick_links": [
+      {"label": "Home",              "url": "index.php"},
+      {"label": "Contact Us",            "url": "page.php?slug=contact"},
+      {"label": "Sitemap",               "url": "sitemap.php"},
+      {"label": "Privacy Policy",        "url": "page.php?slug=privacy"},
+      {"label": "Terms of Use",          "url": "page.php?slug=terms"},
+      {"label": "Copyright Information", "url": "page.php?slug=copyright"},
+      {"label": "Website Matters",       "url": "page.php?slug=website-matters"}
+    ]
+  }
+}
