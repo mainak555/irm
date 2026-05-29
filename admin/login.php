@@ -52,10 +52,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // --- Login ---
     if (!$is_setup && $action === 'login') {
-        $username = trim($_POST['username'] ?? '');
-        $password = $_POST['password'] ?? '';
+        $identifier = trim($_POST['email'] ?? '');
+        $password   = $_POST['password'] ?? '';
 
-        $user = auth_user_find_by_username($username);
+        $user = auth_user_find_by_email($identifier);
 
         if (
             $user === null
@@ -164,10 +164,10 @@ $logo_url     = cfg('school.logoUrl') ?: '/assets/img/logo.png';
         <input type="hidden" name="csrf"   value="<?= h($_SESSION['csrf']) ?>">
 
         <div class="mb-3">
-          <label for="username" class="form-label">Username</label>
-          <input type="text" id="username" name="username" class="form-control"
+          <label for="email" class="form-label">Email / Username</label>
+          <input type="text" id="email" name="email" class="form-control"
                  autocomplete="username" required autofocus
-                 value="<?= h($_POST['username'] ?? '') ?>">
+                 value="<?= h($_POST['email'] ?? '') ?>">
         </div>
 
         <div class="mb-4">

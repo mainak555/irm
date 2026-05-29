@@ -31,7 +31,7 @@ rules:
     - Must Use grill-with-docs skill
   design:
     - Must use c4-architecture skill
-    - Must use architecture-decision-records skill to validate & rectify (if major gaps) generated ADR by grill-with-docs skill 
+    - Must use architecture-decision-records skill to validate or generate ADR. If not present but required.
   specs:
     - Must use gherkin-authoring skill
   tasks:

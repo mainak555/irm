@@ -14,14 +14,18 @@ USE irm;
 DROP TABLE IF EXISTS auth_config;
 DROP TABLE IF EXISTS auth_users;
 
+-- Live migration for existing installs (run before deploying new code):
+--   UPDATE auth_users SET email = 'admin' WHERE username = 'admin' AND role = 'sa';
+--   ALTER TABLE auth_users DROP COLUMN username;
+
 CREATE TABLE auth_users (
     id          INT UNSIGNED    AUTO_INCREMENT PRIMARY KEY,
-    username    VARCHAR(50)     NULL UNIQUE,            -- 'admin' for sa only; NULL for all other users
-    email       VARCHAR(255)    NULL UNIQUE,            -- NULL for sa; required unique for OIDC users
+    email       VARCHAR(255)    NULL UNIQUE,            -- 'admin' sentinel for SA; real email for all other users
     name        VARCHAR(255)    NOT NULL,
     role        ENUM('sa','admin','faculty','user') NOT NULL DEFAULT 'user',
     password    VARCHAR(255)    NULL,                   -- bcrypt hash; sa only; NULL for OIDC users
     is_active   TINYINT(1)      NOT NULL DEFAULT 1,
+    sso         TINYINT(1)      NOT NULL DEFAULT 0,
     theme       ENUM('light','dark','system') NOT NULL DEFAULT 'system',
     created_at  TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP

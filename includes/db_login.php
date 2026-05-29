@@ -8,21 +8,13 @@ function auth_user_count(): int
     return (int) db()->query('SELECT COUNT(*) FROM auth_users')->fetchColumn();
 }
 
-function auth_user_find_by_username(string $username): ?array
-{
-    $st = db()->prepare('SELECT * FROM auth_users WHERE username = :username LIMIT 1');
-    $st->execute([':username' => $username]);
-    $row = $st->fetch();
-    return $row ?: null;
-}
-
 function auth_user_create_sa(string $password_hash): void
 {
     $st = db()->prepare(
-        'INSERT INTO auth_users (username, name, role, password) VALUES (:u, :n, :r, :p)'
+        'INSERT INTO auth_users (email, name, role, password) VALUES (:e, :n, :r, :p)'
     );
     $st->execute([
-        ':u' => 'admin',
+        ':e' => 'admin',
         ':n' => 'Administrator',
         ':r' => 'sa',
         ':p' => $password_hash,

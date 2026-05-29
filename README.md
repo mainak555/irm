@@ -269,7 +269,7 @@ normal login form.
 
 | Field | Value |
 |---|---|
-| **Username** | Pre-filled as `admin` — this is the super-admin (`sa`) account. Cannot be changed here. |
+| **Login name** | Pre-filled as `admin` — this is the super-admin (`sa`) account. Use `admin` to log in. Cannot be changed. |
 | **Password** | Must be ≥ 8 characters with at least one uppercase letter, one number, and one special character. |
 | **Confirm Password** | Must match. |
 
@@ -288,7 +288,7 @@ Navigate to `/admin/` and sign in. The sidebar groups all admin screens.
 |---|---|---|---|
 | **Dashboard** | `/admin/` | All roles | Welcome screen + logged-in user info |
 | **Profile** | `/admin/profile.php` | All roles | Change password, set display theme |
-| **Users** | `/admin/users.php` | `sa`, `admin` | User management *(coming soon)* |
+| **Users** | `/admin/users.php` | `sa`, `admin` | Add, edit, deactivate, and delete admin users |
 | **Auth Config** | `/admin/auth_config.php` | `sa` only | Configure OIDC / SAML SSO provider |
 | **Logout** | `/admin/logout.php` | All roles | Destroy session |
 
@@ -553,14 +553,16 @@ Stores admin panel accounts.
 | Column | Type | Notes |
 |---|---|---|
 | `id` | INT UNSIGNED PK | |
-| `username` | VARCHAR(50) UNIQUE NULL | Only set for the `sa` account (`admin`). OIDC users have `NULL`. |
-| `email` | VARCHAR(255) UNIQUE NULL | `NULL` for `sa`; required for OIDC users. |
+| `email` | VARCHAR(255) UNIQUE NULL | `'admin'` (reserved sentinel) for the SA account; real email for all other users. |
 | `name` | VARCHAR(255) NOT NULL | Display name |
 | `role` | ENUM(`sa`,`admin`,`faculty`,`user`) | Default `user` |
-| `password` | VARCHAR(255) NULL | bcrypt hash — only for `sa`. OIDC users have `NULL`. |
+| `password` | VARCHAR(255) NULL | bcrypt hash — SA and non-SSO users; `NULL` for SSO users. |
 | `is_active` | TINYINT(1) | `0` = disabled, `1` = active |
+| `sso` | TINYINT(1) | `1` = SSO-only account (no password login) |
 | `theme` | ENUM(`light`,`dark`,`system`) | Per-user theme preference, default `system` |
 | `created_at` / `updated_at` | TIMESTAMP | Auto-managed |
+
+> **Login identifiers:** the SA account logs in with the string `admin`; all other users log in with their email address. The login field is labelled "Email / Username".
 
 ### `auth_config`
 
