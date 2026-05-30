@@ -536,7 +536,6 @@ irm/
 │   ├── db.php               # PDO singleton — db() (sets UTC timezone)
 │   ├── auth.php             # require_auth(), current_user(), PWD_REGEX
 │   ├── audit.php            # audit_by() — current user ID for created_by/updated_by
-│   ├── functions.php        # h(), public helper functions
 │   ├── db_login.php         # auth_user_count/find/create/update functions
 │   ├── db_profile.php       # auth_user_update_password/theme
 │   ├── db_auth_config.php   # auth_config_get/save/clear/toggle
