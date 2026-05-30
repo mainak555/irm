@@ -70,12 +70,27 @@ require __DIR__ . '/_layout.php';    // opens <html>, fixed navbar, fixed sideba
 ```
 
 ### Flash messages
-Set before redirect:
+Set before redirect (standard for form POST → redirect flows):
 ```php
 $_SESSION['flash'] = ['type' => 'ok',  'msg' => 'Saved.'];
 $_SESSION['flash'] = ['type' => 'err', 'msg' => 'Something failed.'];
 ```
 Rendered automatically by `_layout.php`.
+
+For **AJAX / fetch actions** that end with `location.reload()`, write to `sessionStorage` instead — `_layout.php` reads and renders it on the next load:
+```js
+sessionStorage.setItem('irmFlash', JSON.stringify({ type: 'ok', msg: 'Done.' }));
+location.reload();
+```
+`_layout.php` clears the key after reading, so it shows exactly once. Use `type: 'ok'` or `type: 'err'`.
+
+### File uploads
+- Max upload size is set via `UPLOAD_MAX_BYTES` in `.env` (bytes, default `5242880` = 5 MB).
+  Read in PHP with `env('UPLOAD_MAX_BYTES', (string)(5 * 1024 * 1024))`.
+  Pass the value to JS via `<?= $max_bytes ?>` so client-side pre-validation uses the same limit.
+- This is the **single source of truth** — never hard-code a size in PHP or JS.
+- AJAX upload handlers must check `$_SERVER['HTTP_X_FETCH']` and return `{ok, msg}` JSON
+  on both success and error (not a redirect). See `admin/carousel.php` → `upload_reply()` pattern.
 
 ---
 
@@ -165,6 +180,7 @@ Run `mysql < sql/schema.sql` to reset. **WARNING: drops existing tables.**
 | `DB_HOST/PORT/NAME/USER/PASS` | MySQL connection |
 | `APP_SECRET` | Session security seed |
 | `APP_DEBUG` | `true` only in dev — shows PHP errors |
+| `UPLOAD_MAX_BYTES` | Max file upload size in bytes (default `5242880` = 5 MB) |
 
 ---
 

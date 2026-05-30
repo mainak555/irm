@@ -10,7 +10,7 @@ $user = current_user();
 
 $carousel_dir = __DIR__ . '/../assets/img/carousel/';
 $slides_json  = __DIR__ . '/../config/slides.json';
-$max_bytes    = 5 * 1024 * 1024;
+$max_bytes    = (int) (env('UPLOAD_MAX_BYTES', (string) (5 * 1024 * 1024)) ?? (5 * 1024 * 1024));
 
 function carousel_load_captions(string $path): array
 {
@@ -42,31 +42,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // ── Upload ────────────────────────────────────────────────────────────────
     if ($action === 'upload') {
-        $file = $_FILES['image'] ?? null;
+        $is_fetch = !empty($_SERVER['HTTP_X_FETCH']);
+        $max_mb   = round($max_bytes / (1024 * 1024), 1);
 
-        if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
-            $err_msg = match ($file['error'] ?? -1) {
-                UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => 'File is too large for the server to accept. Maximum is ' . ini_get('upload_max_filesize') . '.',
-                UPLOAD_ERR_NO_FILE                        => 'No file was selected.',
-                default                                   => 'Upload failed. Please try again.',
-            };
-            $_SESSION['flash'] = ['type' => 'err', 'msg' => $err_msg];
+        function upload_reply(bool $ok, string $msg, bool $is_fetch, string $filename = ''): never
+        {
+            if ($is_fetch) {
+                header('Content-Type: application/json');
+                $payload = ['ok' => $ok, 'msg' => $msg];
+                if ($filename !== '') {
+                    $payload['filename'] = $filename;
+                }
+                echo json_encode($payload);
+                exit;
+            }
+            $_SESSION['flash'] = ['type' => $ok ? 'ok' : 'err', 'msg' => $msg];
             header('Location: /admin/carousel.php');
             exit;
         }
 
+        $file = $_FILES['image'] ?? null;
+
+        if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
+            $err_msg = match ($file['error'] ?? -1) {
+                UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => 'File too large for server. Max: ' . ini_get('upload_max_filesize') . '.',
+                UPLOAD_ERR_NO_FILE                        => 'No file selected.',
+                default                                   => 'Upload failed. Please try again.',
+            };
+            upload_reply(false, $err_msg, $is_fetch);
+        }
+
         if ($file['size'] > $max_bytes) {
-            $_SESSION['flash'] = ['type' => 'err', 'msg' => 'File exceeds the 10 MB size limit.'];
-            header('Location: /admin/carousel.php');
-            exit;
+            upload_reply(false, 'File exceeds the ' . $max_mb . ' MB limit.', $is_fetch);
         }
 
         $img_info          = @getimagesize($file['tmp_name']);
         $allowed_img_types = [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_GIF, IMAGETYPE_WEBP];
         if ($img_info === false || !in_array($img_info[2], $allowed_img_types, true)) {
-            $_SESSION['flash'] = ['type' => 'err', 'msg' => 'File type not allowed. Use jpg, png, gif, or webp.'];
-            header('Location: /admin/carousel.php');
-            exit;
+            upload_reply(false, 'File type not allowed. Use jpg, png, gif, or webp.', $is_fetch);
         }
 
         $ext      = strtolower((string) pathinfo($file['name'], PATHINFO_EXTENSION));
@@ -76,21 +89,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $filename = ($stem ?: 'slide') . '.' . $ext;
 
         if (!move_uploaded_file($file['tmp_name'], $carousel_dir . $filename)) {
-            $_SESSION['flash'] = ['type' => 'err', 'msg' => 'Could not save the uploaded file.'];
-            header('Location: /admin/carousel.php');
-            exit;
+            upload_reply(false, 'Could not save the uploaded file.', $is_fetch);
         }
 
-        // Fetch uploads (drag-and-drop) get a JSON response so JS can reload
-        if (!empty($_SERVER['HTTP_X_FETCH'])) {
-            header('Content-Type: application/json');
-            echo json_encode(['ok' => true, 'filename' => $filename]);
-            exit;
-        }
-
-        $_SESSION['flash'] = ['type' => 'ok', 'msg' => 'Image uploaded: ' . $filename];
-        header('Location: /admin/carousel.php');
-        exit;
+        upload_reply(true, 'Image uploaded: ' . $filename, $is_fetch, $filename);
     }
 
     // ── Caption save ──────────────────────────────────────────────────────────
@@ -184,6 +186,10 @@ require __DIR__ . '/_layout.php';
                    justify-content:center; color:var(--irm-muted-fg); gap:10px; }
 @keyframes dzpulse { from { border-color:var(--irm-border); } to { border-color:var(--irm-primary); } }
 .dz-uploading    { animation:dzpulse .7s ease-in-out infinite alternate; }
+.irm-dz-bar-track { position:absolute; top:0; left:0; right:0; height:3px;
+                    background:var(--irm-muted); overflow:hidden;
+                    border-radius:var(--irm-radius) var(--irm-radius) 0 0; }
+.irm-dz-bar-fill  { height:100%; background:var(--irm-primary); transition:width .15s ease; }
 </style>
 
 <div class="px-4 py-3 d-flex flex-column" style="height:calc(100vh - 57px);overflow:hidden">
@@ -197,6 +203,9 @@ require __DIR__ . '/_layout.php';
 
     <!-- Drop zone -->
     <div class="irm-dz" id="dropZone">
+      <div id="dzBar" class="irm-dz-bar-track" hidden>
+        <div id="dzBarFill" class="irm-dz-bar-fill" style="width:0%"></div>
+      </div>
       <input type="file" id="dzInput" accept=".jpg,.jpeg,.png,.gif,.webp" multiple>
       <span id="dzLabel">
         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -205,7 +214,7 @@ require __DIR__ . '/_layout.php';
                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
         </svg>
         Drop images here or <strong>click to browse</strong>
-        <span class="text-muted" style="font-size:.8em"> — jpg, png, gif, webp · max 10 MB</span>
+        <span class="text-muted" style="font-size:.8em"> — jpg, png, gif, webp · max <?= round($max_bytes / (1024 * 1024), 1) ?> MB</span>
       </span>
     </div>
 
@@ -288,7 +297,8 @@ require __DIR__ . '/_layout.php';
 
 <script>
 (function () {
-  const csrf = <?= json_encode($_SESSION['csrf'] ?? '') ?>;
+  const csrf    = <?= json_encode($_SESSION['csrf'] ?? '') ?>;
+  const maxBytes = <?= $max_bytes ?>;
 
   // ── Filmstrip selection ───────────────────────────────────────────────────
   const thumbs  = document.querySelectorAll('.irm-thumb');
@@ -314,35 +324,91 @@ require __DIR__ . '/_layout.php';
   if (thumbs.length) select(thumbs[0]);
 
   // ── Drag-and-drop upload ──────────────────────────────────────────────────
-  const dz      = document.getElementById('dropZone');
-  const dzInput = document.getElementById('dzInput');
-  const dzLabel = document.getElementById('dzLabel');
+  const dz       = document.getElementById('dropZone');
+  const dzInput  = document.getElementById('dzInput');
+  const dzLabel  = document.getElementById('dzLabel');
+  const dzBar    = document.getElementById('dzBar');
+  const dzBarFill = document.getElementById('dzBarFill');
   if (!dz) return;
 
-  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dz-over'); });
+  dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('dz-over'); });
   dz.addEventListener('dragleave', e => { if (!dz.contains(e.relatedTarget)) dz.classList.remove('dz-over'); });
-  dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('dz-over'); upload(e.dataTransfer.files); });
+  dz.addEventListener('drop',      e => { e.preventDefault(); dz.classList.remove('dz-over'); upload(e.dataTransfer.files); });
   dzInput.addEventListener('change', e => { upload(e.target.files); e.target.value = ''; });
 
   function upload(files) {
-    const list = [...files];
-    if (!list.length) return;
+    const fileList = [...files];
+    if (!fileList.length) return;
+
+    const maxMb  = (maxBytes / (1024 * 1024)).toFixed(1);
+    const results = { ok: [], err: [] };
+    const toUpload = [];
+
+    fileList.forEach(f => {
+      if (f.size > maxBytes) {
+        results.err.push(f.name + ': exceeds ' + maxMb + ' MB limit');
+      } else {
+        toUpload.push(f);
+      }
+    });
+
+    const total = toUpload.length;
 
     dz.classList.add('dz-uploading');
-    dzLabel.textContent = 'Uploading ' + list.length + ' file' + (list.length > 1 ? 's' : '') + '…';
+    dzBar.hidden = false;
+    dzBarFill.style.width = '0%';
+    dzLabel.textContent = total ? ('Uploading 0 / ' + total + '…') : 'Validating…';
+
+    if (!total) { finalize(results); return; }
 
     let done = 0;
-    list.forEach(file => {
+
+    toUpload.forEach(file => {
       const fd = new FormData();
       fd.append('csrf',   csrf);
       fd.append('action', 'upload');
       fd.append('image',  file);
       fetch('/admin/carousel.php', {
-        method: 'POST',
+        method:  'POST',
         headers: { 'X-Fetch': '1' },
-        body: fd,
-      }).finally(() => { if (++done === list.length) location.reload(); });
+        body:    fd,
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data.ok) results.ok.push(data.filename);
+          else         results.err.push(file.name + ': ' + (data.msg || 'Upload failed'));
+        })
+        .catch(() => results.err.push(file.name + ': network error'))
+        .finally(() => {
+          done++;
+          dzBarFill.style.width = Math.round(done / total * 100) + '%';
+          dzLabel.textContent   = 'Uploading ' + done + ' / ' + total + '…';
+          if (done === total) finalize(results);
+        });
     });
+  }
+
+  function finalize(results) {
+    dz.classList.remove('dz-uploading');
+    dzBar.hidden = true;
+
+    const okN  = results.ok.length;
+    const errN = results.err.length;
+    let type, msg;
+
+    if (errN === 0) {
+      type = 'ok';
+      msg  = okN === 1 ? 'Image uploaded: ' + results.ok[0] : okN + ' images uploaded.';
+    } else if (okN === 0) {
+      type = 'err';
+      msg  = results.err.join(' · ');
+    } else {
+      type = 'err';
+      msg  = okN + ' uploaded · ' + errN + ' failed: ' + results.err.join(', ');
+    }
+
+    sessionStorage.setItem('irmFlash', JSON.stringify({ type, msg }));
+    location.reload();
   }
 })();
 </script>

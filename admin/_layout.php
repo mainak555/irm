@@ -185,7 +185,8 @@ if (localStorage.getItem('irm_sidebar') === 'collapsed')
   <!-- Main content -->
   <main class="admin-main">
 
-    <!-- Flash message -->
+    <!-- Flash messages (PHP session + JS sessionStorage) -->
+    <div id="flashArea"></div>
     <?php if (!empty($_SESSION['flash'])): ?>
       <?php $flash = $_SESSION['flash']; unset($_SESSION['flash']); ?>
       <div class="flash-area">
@@ -195,3 +196,24 @@ if (localStorage.getItem('irm_sidebar') === 'collapsed')
         </div>
       </div>
     <?php endif; ?>
+    <script>
+    (function(){
+      var f = sessionStorage.getItem('irmFlash');
+      if (!f) return;
+      sessionStorage.removeItem('irmFlash');
+      try { f = JSON.parse(f); } catch(e) { return; }
+      var cls = f.type === 'ok' ? 'success' : 'danger';
+      var d   = document.createElement('div');
+      d.setAttribute('role', 'alert');
+      d.className = 'alert alert-' + cls + ' alert-dismissible fade show mb-3';
+      var txt = document.createTextNode(f.msg);
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn-close';
+      btn.setAttribute('data-bs-dismiss', 'alert');
+      btn.setAttribute('aria-label', 'Close');
+      d.appendChild(txt);
+      d.appendChild(btn);
+      document.getElementById('flashArea').appendChild(d);
+    })();
+    </script>

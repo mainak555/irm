@@ -88,6 +88,7 @@ version control.**
 | `DB_PASS` | Yes | — | Database password |
 | `APP_SECRET` | Yes | — | Random string used for session security. Generate with `php -r "echo bin2hex(random_bytes(32));"` |
 | `APP_DEBUG` | No | `false` | Set `true` only on local dev — shows PHP errors in the browser |
+| `UPLOAD_MAX_BYTES` | No | `5242880` | Maximum file upload size in bytes. Single source of truth for all upload features — changing this here automatically updates both server-side validation and the client-side drop zone limit. Default is 5 MB. |
 
 ### Generating APP_SECRET
 
@@ -108,6 +109,9 @@ DB_PASS=a-strong-password
 
 APP_SECRET=c3ab8ff13720e8ad9047dd39466b3c8974e592c2fa383d4a3960714caef0c4f2
 APP_DEBUG=false
+
+# Maximum file upload size in bytes — single source of truth for all uploads (default: 5 MB)
+# UPLOAD_MAX_BYTES=5242880
 ```
 
 ---
@@ -798,10 +802,19 @@ php -m | findstr /I "openssl pdo_mysql pdo_odbc"
 
 ### Upload Limits
 
-The carousel admin accepts images up to **10 MB**. PHP's built-in defaults are
-lower (`upload_max_filesize = 2M`), which causes silent rejection before the
-application even sees the file. Raise the limits using whichever method matches
-your deployment.
+The application enforces a configurable upload limit. The **single source of
+truth** is `UPLOAD_MAX_BYTES` in `.env` (default `5242880` = 5 MB). Both the
+PHP server-side check and the client-side drop zone pre-validation read this
+value — change it in one place and both are updated.
+
+> **PHP also has its own limits** (`upload_max_filesize`, `post_max_size` in
+> `php.ini`). These are enforced by PHP itself, *before* the application code
+> runs. If `UPLOAD_MAX_BYTES` is higher than `upload_max_filesize`, PHP will
+> silently truncate or reject large files. **Keep the php.ini limits ≥
+> `UPLOAD_MAX_BYTES`.**
+
+The default php.ini value (`upload_max_filesize = 2M`) is lower than the 5 MB
+application default — raise it using whichever method matches your deployment.
 
 ### Option A — `php.ini` (recommended)
 
@@ -817,7 +830,8 @@ php --ini
 > On Windows with the PHP installer the file is typically
 > `C:\php-x.x.x\php.ini`
 
-Add or update these two directives:
+Add or update these two directives (adjust the values to match or exceed your
+`UPLOAD_MAX_BYTES` setting):
 
 ```ini
 upload_max_filesize = 10M
