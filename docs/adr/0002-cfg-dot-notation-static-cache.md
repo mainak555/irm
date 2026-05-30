@@ -10,7 +10,7 @@
 
 ## Decision
 
-`includes/config.php` exposes a single function `cfg(string $key, mixed $default = null): mixed`. Keys use dot-notation (`cfg('school.title')`, `cfg('footer.quick_links')`). The parsed JSON array is cached in a `static` variable so `file_get_contents` is called at most once per PHP request.
+`config.php` (root) exposes a single function `cfg(string $key, mixed $default = null): mixed`. Keys use dot-notation (`cfg('general.title')`, `cfg('footer.quick_links')`). The parsed JSON array is cached in a `static` variable so `file_get_contents` is called at most once per PHP request.
 
 ## Alternatives Considered
 
@@ -32,7 +32,7 @@
 ## Consequences
 
 ### Positive
-- Any PHP file gets config values with a single readable call: `cfg('school.title')`.
+- Any PHP file gets config values with a single readable call: `cfg('general.title')`.
 - JSON structure is preserved — config.json can be organized semantically.
 - Zero file I/O after the first call within a request.
 
@@ -40,4 +40,4 @@
 - Config is loaded lazily on first call; if `config.json` is missing or malformed, the error surfaces at render time rather than at boot.
 
 ### Risks
-- Malformed `config.json` will cause `json_decode` to return null, and all `cfg()` calls will return their `$default`. Add a startup check in `includes/config.php` that calls `error_log()` if the file is unreadable or unparseable.
+- Malformed `config.json` will cause `json_decode` to return null, and all `cfg()` calls will return their `$default`. Add a startup check in `config.php` that calls `error_log()` if the file is unreadable or unparseable.

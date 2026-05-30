@@ -1,8 +1,10 @@
 # ADR-0003: Carousel folder discovery with optional DB caption overlay
 
 **Date**: 2026-05-27
-**Status**: accepted
+**Status**: superseded by ADR-0018 (2026-05-30)
 **Deciders**: project team (modular-public-layout-with-config change)
+
+> **Superseded by [ADR-0018](0018-slides-json-flat-object-replaces-db-overlay.md).** The DB `hero_slides` overlay described here was replaced by a `config/slides.json` flat object. The `glob()` discovery pattern was retained; the DB join was not.
 
 ## Context
 

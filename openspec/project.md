@@ -111,7 +111,6 @@ irm/
 │   ├── db.php               — db() PDO singleton (sets UTC timezone)
 │   ├── auth.php             — require_auth(), current_user(), PWD_REGEX
 │   ├── audit.php            — audit_by(): ?int for created_by/updated_by writes
-│   ├── functions.php        — h(), menu_url(), and public helpers
 │   ├── db_login.php         — auth_user_count/find/create/update
 │   ├── db_profile.php       — auth_user_update_password/theme
 │   ├── db_auth_config.php   — auth_config_get/save/clear/toggle
@@ -308,6 +307,7 @@ Theme pack CSS files are **baked into the image** (shipped code, not user data).
 | `DB_PASS` | Yes | — | DB password |
 | `APP_SECRET` | Yes | — | Session security seed |
 | `APP_DEBUG` | No | `false` | `true` in dev only — shows PHP errors |
+| `UPLOAD_MAX_BYTES` | No | `5242880` | Max file upload size in bytes (ADR-0022) |
 
 ---
 

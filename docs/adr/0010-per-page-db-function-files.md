@@ -6,7 +6,7 @@
 
 ## Context
 
-The project uses a PDO singleton (`db()` from `includes/db.php`) shared across all pages. As the admin grows to cover many domains (auth, content management, news, slides, links, etc.), all DB queries need to live somewhere. The options are a single large file, a single file per domain group, or a file per admin page. The existing public-side pattern already has `includes/functions.php` as a shared utility file but it is not query-focused.
+The project uses a PDO singleton (`db()` from `includes/db.php`) shared across all pages. As the admin grows to cover many domains (auth, content management, news, slides, links, etc.), all DB queries need to live somewhere. The options are a single large file, a single file per domain group, or a file per admin page. The existing public-side pattern already had `includes/functions.php` as a shared utility file but it was not query-focused. (That file has since been deleted — its helpers were moved to root `config.php`.)
 
 ## Decision
 

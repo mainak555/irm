@@ -4,9 +4,9 @@
 |-----|-------|--------|------|
 | [0001](0001-two-tier-config-split.md) | Two-tier config split: JSON for identity, DB for runtime | accepted | 2026-05-27 |
 | [0002](0002-cfg-dot-notation-static-cache.md) | cfg() helper with dot-notation and per-request static cache | accepted | 2026-05-27 |
-| [0003](0003-carousel-folder-discovery-db-overlay.md) | Carousel folder discovery with optional DB caption overlay | accepted | 2026-05-27 |
+| [0003](0003-carousel-folder-discovery-db-overlay.md) | Carousel folder discovery with optional DB caption overlay | superseded by ADR-0018 | 2026-05-27 |
 | [0004](0004-home-json-external-links-json.md) | Separate home.json and external_links.json for page-specific static copy | accepted | 2026-05-27 |
-| [0005](0005-admin-writes-config-json-directly.md) | admin/settings.php writes config.json directly, dropping settings DB table | accepted | 2026-05-27 |
+| [0005](0005-admin-writes-config-json-directly.md) | admin/config_general.php writes config.json directly, dropping settings DB table | amended 2026-05-30 | 2026-05-27 |
 | [0006](0006-css-custom-properties-from-config.md) | CSS custom properties injected inline from config.json in header.php | accepted | 2026-05-27 |
 | [0007](0007-replace-admin-users-with-auth-users.md) | Replace admin_users table with auth_users (new schema, roles, OIDC-ready) | accepted | 2026-05-28 |
 | [0008](0008-auth-config-singleton-one-provider.md) | auth_config as a singleton — one OIDC/SAML provider at a time | accepted | 2026-05-28 |
@@ -23,3 +23,4 @@
 | [0019](0019-docker-volume-mounts-for-mutable-content.md) | Docker volume mounts for mutable content | accepted | 2026-05-30 |
 | [0020](0020-single-assets-tree-components-at-root.md) | Single assets tree — components at root level | accepted | 2026-05-30 |
 | [0021](0021-viewport-locked-admin-shell.md) | Viewport-locked admin shell — fixed navbar and sidebar | accepted | 2026-05-30 |
+| [0022](0022-upload-size-env-ajax-flash-standard.md) | Upload size via UPLOAD_MAX_BYTES env var + AJAX sessionStorage flash standard | accepted | 2026-05-30 |
