@@ -106,6 +106,9 @@ if (localStorage.getItem('irm_sidebar') === 'collapsed')
 
   <!-- Sidebar -->
   <aside class="admin-sidebar" id="adminSidebar">
+    <div class="sidebar-brand">
+      <span class="sidebar-brand-name">LUMIO</span>
+    </div>
     <div class="accordion accordion-flush" id="sidebarAccordion">
 
       <a class="nav-link <?= $current_page === 'index'   ? 'active' : '' ?>"

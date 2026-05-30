@@ -25,7 +25,8 @@ editing one JSON file.
 15. [Database Schema](#15-database-schema)
 16. [Audit Columns — created\_at / updated\_at / created\_by / updated\_by](#16-audit-columns--created_at--updated_at--created_by--updated_by)
 17. [Security Notes](#17-security-notes)
-18. [Troubleshooting](#18-troubleshooting)
+18. [PHP Configuration](#18-php-configuration)
+19. [Troubleshooting](#19-troubleshooting)
 
 ---
 
@@ -34,7 +35,7 @@ editing one JSON file.
 | Requirement | Minimum | Recommended |
 |---|---|---|
 | PHP | 8.0 | 8.2+ |
-| PHP extensions | `pdo_mysql` | `pdo_mysql`, `mbstring` |
+| PHP extensions | `openssl`, `pdo_mysql` | `openssl`, `pdo_mysql`, `pdo_odbc`, `mbstring` |
 | Database | MySQL 5.7 / MariaDB 10.3 | MySQL 8+ / MariaDB 10.6+ |
 | Web server | PHP built-in (`php -S`) | Apache 2.4 / Nginx |
 | Docker (optional) | 20.x | latest |
@@ -760,7 +761,118 @@ $rows = db()->query(
 
 ---
 
-## 18. Troubleshooting
+## 18. PHP Configuration
+
+### Required PHP Extensions
+
+IRM requires three PHP extensions. Enable them in `php.ini` by removing the
+leading `;` from the relevant lines.
+
+| Extension | Why it's needed | `php.ini` line |
+|---|---|---|
+| `openssl` | OIDC/PKCE — HTTPS requests to the provider's discovery endpoint and token exchange | `extension=openssl` |
+| `pdo_mysql` | All database access via PDO | `extension=pdo_mysql` |
+| `pdo_odbc` | Optional — needed only if connecting through an ODBC data source | `extension=pdo_odbc` |
+
+```ini
+; in php.ini — uncomment these three lines (remove the leading semicolon)
+extension=openssl
+extension=pdo_mysql
+extension=pdo_odbc
+```
+
+On Windows the extension DLLs live in the `ext/` folder next to `php.exe`.
+Ensure `extension_dir` in `php.ini` points to that folder:
+
+```ini
+extension_dir = "C:\php-8.5.6\ext"
+```
+
+Restart PHP / PHP-FPM after any extension change. Verify with:
+
+```bash
+php -m | findstr /I "openssl pdo_mysql pdo_odbc"
+```
+
+---
+
+### Upload Limits
+
+The carousel admin accepts images up to **10 MB**. PHP's built-in defaults are
+lower (`upload_max_filesize = 2M`), which causes silent rejection before the
+application even sees the file. Raise the limits using whichever method matches
+your deployment.
+
+### Option A — `php.ini` (recommended)
+
+Applies to: `php -S`, PHP-FPM, IIS with PHP, Docker.
+
+Find the active `php.ini`:
+
+```bash
+php --ini
+# or open a PHP page containing: <?php phpinfo(); ?>
+```
+
+> On Windows with the PHP installer the file is typically
+> `C:\php-x.x.x\php.ini`
+
+Add or update these two directives:
+
+```ini
+upload_max_filesize = 10M
+post_max_size       = 12M
+```
+
+> `post_max_size` must be larger than `upload_max_filesize` — it covers the
+> entire multipart body (file bytes + form fields).
+
+Restart PHP or PHP-FPM after saving.
+
+#### Docker — custom `php.ini` drop-in
+
+Place an override file in the container's `conf.d` directory instead of
+editing the base image's `php.ini`:
+
+```dockerfile
+COPY docker/php-uploads.ini /usr/local/etc/php/conf.d/uploads.ini
+```
+
+`docker/php-uploads.ini`:
+
+```ini
+upload_max_filesize = 10M
+post_max_size       = 12M
+```
+
+### Option B — `.htaccess` (Apache with `mod_php` only)
+
+Create `.htaccess` in the project root:
+
+```apache
+php_value upload_max_filesize 10M
+php_value post_max_size 12M
+```
+
+This overrides `php.ini` per-directory without a server restart and requires
+`AllowOverride All` in the Apache `<Directory>` block.
+
+> **Does not work** with PHP-FPM, Nginx, or `php -S`. Use Option A for
+> those setups.
+
+### Verifying the active limits
+
+```php
+<?php
+echo 'upload_max_filesize: ' . ini_get('upload_max_filesize') . PHP_EOL;
+echo 'post_max_size: '       . ini_get('post_max_size')       . PHP_EOL;
+```
+
+Or check the **PHP Info** page (`<?php phpinfo(); ?>`).
+
+---
+
+## 19. Troubleshooting
 
 ### Blank page / 500 error
 

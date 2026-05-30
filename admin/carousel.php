@@ -45,13 +45,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $file = $_FILES['image'] ?? null;
 
         if (!$file || $file['error'] !== UPLOAD_ERR_OK) {
-            $_SESSION['flash'] = ['type' => 'err', 'msg' => 'Upload failed. Please try again.'];
+            $err_msg = match ($file['error'] ?? -1) {
+                UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => 'File is too large for the server to accept. Maximum is ' . ini_get('upload_max_filesize') . '.',
+                UPLOAD_ERR_NO_FILE                        => 'No file was selected.',
+                default                                   => 'Upload failed. Please try again.',
+            };
+            $_SESSION['flash'] = ['type' => 'err', 'msg' => $err_msg];
             header('Location: /admin/carousel.php');
             exit;
         }
 
         if ($file['size'] > $max_bytes) {
-            $_SESSION['flash'] = ['type' => 'err', 'msg' => 'File exceeds the 5 MB size limit.'];
+            $_SESSION['flash'] = ['type' => 'err', 'msg' => 'File exceeds the 10 MB size limit.'];
             header('Location: /admin/carousel.php');
             exit;
         }
@@ -200,7 +205,7 @@ require __DIR__ . '/_layout.php';
                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
         </svg>
         Drop images here or <strong>click to browse</strong>
-        <span class="text-muted" style="font-size:.8em"> — jpg, png, gif, webp · max 5 MB</span>
+        <span class="text-muted" style="font-size:.8em"> — jpg, png, gif, webp · max 10 MB</span>
       </span>
     </div>
 
