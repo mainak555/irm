@@ -326,6 +326,7 @@ Theme pack CSS files are **baked into the image** (shipped code, not user data).
 - [x] Carousel admin: image upload + `slides.json` caption management
 - [x] General settings admin: identity, theme pack, social links
 - [x] Single `assets/` tree — no split between public/ and assets/ (ADR-0020)
+- [x] Viewport-locked admin chrome — navbar + sidebar fixed, only main content scrolls (ADR-0021)
 
 ### Near-term
 - [ ] `news.php` — public single-article view

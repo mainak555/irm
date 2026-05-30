@@ -115,8 +115,11 @@ small, .small { font-size: 0.8125rem; }
    ══════════════════════════════════════════════════ */
 .admin-wrapper {
   display: flex;
-  min-height: calc(100vh - 56px);
-  position: relative;
+  position: fixed;
+  top: 56px;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 .admin-sidebar {
@@ -128,6 +131,8 @@ small, .small { font-size: 0.8125rem; }
   background-color: var(--irm-sidebar-bg);
   border-right: 1px solid var(--irm-border);
   overflow: hidden;
+  overflow-y: auto;
+  height: 100%;
   transition:
     width 0.22s cubic-bezier(0.4, 0, 0.2, 1),
     padding 0.22s cubic-bezier(0.4, 0, 0.2, 1),
@@ -139,6 +144,7 @@ small, .small { font-size: 0.8125rem; }
   flex: 1;
   padding: 2rem 2.25rem;
   overflow-y: auto;
+  height: 100%;
   min-width: 0;
 }
 
@@ -249,6 +255,11 @@ small, .small { font-size: 0.8125rem; }
    TOP NAVBAR
    ══════════════════════════════════════════════════ */
 .navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1030;
   background-color: var(--irm-card) !important;
   border-bottom: 1px solid var(--irm-border) !important;
 }

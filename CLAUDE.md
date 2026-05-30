@@ -61,7 +61,7 @@ require_once __DIR__ . '/../config.php';  // if cfg() or db() needed
 require_auth();           // or require_auth('sa') for restricted pages
 
 $user = current_user();
-require __DIR__ . '/_layout.php';    // opens <html>, navbar, sidebar, <main>
+require __DIR__ . '/_layout.php';    // opens <html>, fixed navbar, fixed sidebar, <main>
 ?>
 
 <!-- page content here -->
@@ -83,6 +83,12 @@ Rendered automatically by `_layout.php`.
 
 `assets/css/admin.css` implements the **Material Shadcn** design system on top of
 Bootstrap 5.3. All component colors reference `--irm-*` tokens.
+
+### Layout chrome
+The admin shell uses a viewport-locked layout (ADR-0021). Navbar and sidebar are
+`position: fixed` — they never scroll. **`.admin-main` is the sole scrolling region.**
+Any `position: sticky` elements inside page content must be scoped to `.admin-main`
+as the scroll root, not to the viewport.
 
 ### CSS tokens
 
