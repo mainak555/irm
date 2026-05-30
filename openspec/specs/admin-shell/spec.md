@@ -18,7 +18,7 @@ The database connection SHALL be configured exclusively from environment variabl
 ---
 
 ### Requirement: Admin layout wraps all protected pages
-Every protected admin page SHALL include `admin/_layout.php` at the top and `admin/_layout_end.php` at the bottom. The layout SHALL render: a top navbar, a left sidebar, a flash message area, and a main content `<div>`. The layout SHALL load Bootstrap 5.3 from CDN followed by `admin/style.css`. The layout SHALL set `data-bs-theme` on the `<html>` element based on the current user's theme preference before Bootstrap loads.
+Every protected admin page SHALL include `admin/_layout.php` at the top and `admin/_layout_end.php` at the bottom. The layout SHALL render: a top navbar, a left sidebar, a flash message area, and a main content `<div>`. The layout SHALL load Bootstrap 5.3 from CDN followed by `assets/css/admin.css`. The layout SHALL set `data-bs-theme` on the `<html>` element based on the current user's theme preference before Bootstrap loads.
 
 #### Scenario: Protected page renders within admin chrome
 - **WHEN** an authenticated user loads any protected admin page
@@ -26,7 +26,7 @@ Every protected admin page SHALL include `admin/_layout.php` at the top and `adm
 
 #### Scenario: Bootstrap CDN link appears before custom stylesheet
 - **WHEN** any admin page is rendered
-- **THEN** the HTML `<head>` contains a Bootstrap 5.3 CDN `<link>` followed by the `admin/style.css` `<link>`
+- **THEN** the HTML `<head>` contains a Bootstrap 5.3 CDN `<link>` followed by the `assets/css/admin.css` `<link>`
 
 ---
 
@@ -151,4 +151,32 @@ The layout SHALL check `$_SESSION['flash']` at render time. If present, the mess
 #### Scenario: Utility available globally before page JS runs
 - **WHEN** any admin page loads
 - **THEN** `window.IRM.formatUtcTs` is callable before the page's own `<script>` blocks execute (defined in `<head>`)
+
+---
+
+### Requirement: Viewport-locked admin shell
+The admin chrome SHALL use a fixed-position layout so the navbar and sidebar remain
+permanently visible while only the main content area scrolls. See ADR-0021.
+
+The `.navbar` SHALL carry `position: fixed; top: 0; left: 0; right: 0; z-index: 1030`.
+`.admin-wrapper` SHALL be `position: fixed; top: 56px; left: 0; right: 0; bottom: 0` —
+filling the viewport below the navbar exactly. `.admin-sidebar` SHALL have
+`height: 100%; overflow-y: auto`. `.admin-main` SHALL have `overflow-y: auto; height: 100%`
+and SHALL be the sole scrolling region for page content.
+
+#### Scenario: Navbar stays visible while content scrolls
+- **GIVEN** an admin page whose content exceeds the viewport height
+- **WHEN** the user scrolls down in the main content area
+- **THEN** the top navbar SHALL remain fixed at the top of the viewport
+- **AND** the user SHALL NOT need to scroll back up to access the navbar
+
+#### Scenario: Sidebar stays visible while content scrolls
+- **GIVEN** an admin page whose content exceeds the viewport height
+- **WHEN** the user scrolls down in the main content area
+- **THEN** the left sidebar SHALL remain fixed and fully visible
+- **AND** all navigation links SHALL remain accessible without scrolling
+
+#### Scenario: Page body does not scroll
+- **WHEN** any protected admin page renders
+- **THEN** the `document` (viewport scroll) SHALL NOT move — only `.admin-main` scrolls
 

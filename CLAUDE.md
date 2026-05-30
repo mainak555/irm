@@ -21,7 +21,7 @@ Zero Composer, zero npm, zero build step.
 |---|---|
 | Language | PHP 8.2, `declare(strict_types=1)` on every file |
 | Database | MySQL 8 / MariaDB — PDO, `FETCH_ASSOC`, named placeholders |
-| Admin UI | Bootstrap 5.3 + custom `admin/style.css` (Material Shadcn tokens) |
+| Admin UI | Bootstrap 5.3 + custom `assets/css/admin.css` (Material Shadcn tokens) |
 | Auth | PHP sessions + bcrypt (`password_verify`) + OIDC/SAML via `auth_config` |
 | Fonts | Inter (admin), Google Fonts (public, from config.json) |
 
@@ -61,7 +61,7 @@ require_once __DIR__ . '/../config.php';  // if cfg() or db() needed
 require_auth();           // or require_auth('sa') for restricted pages
 
 $user = current_user();
-require __DIR__ . '/_layout.php';    // opens <html>, navbar, sidebar, <main>
+require __DIR__ . '/_layout.php';    // opens <html>, fixed navbar, fixed sidebar, <main>
 ?>
 
 <!-- page content here -->
@@ -70,19 +70,40 @@ require __DIR__ . '/_layout.php';    // opens <html>, navbar, sidebar, <main>
 ```
 
 ### Flash messages
-Set before redirect:
+Set before redirect (standard for form POST → redirect flows):
 ```php
 $_SESSION['flash'] = ['type' => 'ok',  'msg' => 'Saved.'];
 $_SESSION['flash'] = ['type' => 'err', 'msg' => 'Something failed.'];
 ```
 Rendered automatically by `_layout.php`.
 
+For **AJAX / fetch actions** that end with `location.reload()`, write to `sessionStorage` instead — `_layout.php` reads and renders it on the next load:
+```js
+sessionStorage.setItem('irmFlash', JSON.stringify({ type: 'ok', msg: 'Done.' }));
+location.reload();
+```
+`_layout.php` clears the key after reading, so it shows exactly once. Use `type: 'ok'` or `type: 'err'`.
+
+### File uploads
+- Max upload size is set via `UPLOAD_MAX_BYTES` in `.env` (bytes, default `5242880` = 5 MB).
+  Read in PHP with `env('UPLOAD_MAX_BYTES', (string)(5 * 1024 * 1024))`.
+  Pass the value to JS via `<?= $max_bytes ?>` so client-side pre-validation uses the same limit.
+- This is the **single source of truth** — never hard-code a size in PHP or JS.
+- AJAX upload handlers must check `$_SERVER['HTTP_X_FETCH']` and return `{ok, msg}` JSON
+  on both success and error (not a redirect). See `admin/carousel.php` → `upload_reply()` pattern.
+
 ---
 
 ## Admin Theme
 
-`admin/style.css` implements the **Material Shadcn** design system on top of
+`assets/css/admin.css` implements the **Material Shadcn** design system on top of
 Bootstrap 5.3. All component colors reference `--irm-*` tokens.
+
+### Layout chrome
+The admin shell uses a viewport-locked layout (ADR-0021). Navbar and sidebar are
+`position: fixed` — they never scroll. **`.admin-main` is the sole scrolling region.**
+Any `position: sticky` elements inside page content must be scoped to `.admin-main`
+as the scroll root, not to the viewport.
 
 ### CSS tokens
 
@@ -159,6 +180,7 @@ Run `mysql < sql/schema.sql` to reset. **WARNING: drops existing tables.**
 | `DB_HOST/PORT/NAME/USER/PASS` | MySQL connection |
 | `APP_SECRET` | Session security seed |
 | `APP_DEBUG` | `true` only in dev — shows PHP errors |
+| `UPLOAD_MAX_BYTES` | Max file upload size in bytes (default `5242880` = 5 MB) |
 
 ---
 
@@ -175,6 +197,8 @@ Run `mysql < sql/schema.sql` to reset. **WARNING: drops existing tables.**
 | `includes/db_auth_config.php` | `auth_config_get/save/clear/toggle` |
 | `admin/_layout.php` | Admin shell: opens HTML, topbar, sidebar, `<main>` |
 | `admin/_layout_end.php` | Closes `</main>`, loads Bootstrap JS bundle |
-| `admin/style.css` | Material Shadcn theme tokens + all component styles |
+| `assets/css/admin.css` | Material Shadcn theme tokens + all component styles |
+| `assets/css/themes/` | Public theme pack CSS files (scanned at runtime) |
+| `components/carousel.php` | Public carousel PHP partial |
 | `sql/schema.sql` | DROP/CREATE `auth_users` + `auth_config` |
 | `config/config.json` | School branding — edit to deploy for a new school |

@@ -25,7 +25,8 @@ editing one JSON file.
 15. [Database Schema](#15-database-schema)
 16. [Audit Columns — created\_at / updated\_at / created\_by / updated\_by](#16-audit-columns--created_at--updated_at--created_by--updated_by)
 17. [Security Notes](#17-security-notes)
-18. [Troubleshooting](#18-troubleshooting)
+18. [PHP Configuration](#18-php-configuration)
+19. [Troubleshooting](#19-troubleshooting)
 
 ---
 
@@ -34,7 +35,7 @@ editing one JSON file.
 | Requirement | Minimum | Recommended |
 |---|---|---|
 | PHP | 8.0 | 8.2+ |
-| PHP extensions | `pdo_mysql` | `pdo_mysql`, `mbstring` |
+| PHP extensions | `openssl`, `pdo_mysql` | `openssl`, `pdo_mysql`, `pdo_odbc`, `mbstring` |
 | Database | MySQL 5.7 / MariaDB 10.3 | MySQL 8+ / MariaDB 10.6+ |
 | Web server | PHP built-in (`php -S`) | Apache 2.4 / Nginx |
 | Docker (optional) | 20.x | latest |
@@ -87,6 +88,7 @@ version control.**
 | `DB_PASS` | Yes | — | Database password |
 | `APP_SECRET` | Yes | — | Random string used for session security. Generate with `php -r "echo bin2hex(random_bytes(32));"` |
 | `APP_DEBUG` | No | `false` | Set `true` only on local dev — shows PHP errors in the browser |
+| `UPLOAD_MAX_BYTES` | No | `5242880` | Maximum file upload size in bytes. Single source of truth for all upload features — changing this here automatically updates both server-side validation and the client-side drop zone limit. Default is 5 MB. |
 
 ### Generating APP_SECRET
 
@@ -107,6 +109,9 @@ DB_PASS=a-strong-password
 
 APP_SECRET=c3ab8ff13720e8ad9047dd39466b3c8974e592c2fa383d4a3960714caef0c4f2
 APP_DEBUG=false
+
+# Maximum file upload size in bytes — single source of truth for all uploads (default: 5 MB)
+# UPLOAD_MAX_BYTES=5242880
 ```
 
 ---
@@ -176,6 +181,10 @@ services:
     env_file: .env
     depends_on:
       - db
+    volumes:
+      - ./config:/var/www/html/config
+      - ./assets/img/carousel:/var/www/html/assets/img/carousel
+      # - ./assets/img/gallery:/var/www/html/assets/img/gallery  # add when gallery ships
 
 volumes:
   db-data:
@@ -506,46 +515,65 @@ cfg('brand.colors.accent')   // "#b5451b"
 irm/
 ├── Dockerfile
 ├── .dockerignore
+├── docker-compose.example.yml
 ├── env.example              # DB credentials template — copy to .env
-├── config.php                # .env loader, PDO DSN helpers, session_start, h(), cfg()
-├── index.php                 # Public home page
-├── page.php                  # Generic content page (?slug=…)
+├── config.php               # .env loader, PDO DSN helpers, session_start, h(), cfg()
+├── index.php                # Public home page
+├── page.php                 # Generic content page (?slug=…)
 ├── README.md
 │
-├── config/
-│   └── config.json           # School identity & branding (edit to deploy)
+├── config/                  # ← Docker volume mount (survives rebuilds)
+│   ├── config.json          # School identity & branding (edit to deploy)
+│   ├── slides.json          # Carousel captions
+│   ├── home.json            # Home page content
+│   ├── menu.json            # Primary navigation items
+│   └── external_links.json  # External link blocks
 │
 ├── sql/
-│   └── schema.sql            # DROP/CREATE auth_users + auth_config tables
+│   └── schema.sql           # DROP/CREATE auth_users + auth_config tables
 │
 ├── includes/
-│   ├── db.php                # PDO singleton — db() (sets UTC timezone)
-│   ├── auth.php              # require_auth(), current_user(), PWD_REGEX
-│   ├── audit.php             # audit_by() — current user ID for created_by/updated_by
-│   ├── functions.php         # h(), public helper functions
-│   ├── db_login.php          # auth_user_count/find/create/update functions
-│   ├── db_profile.php        # auth_user_update_password/theme
-│   ├── db_auth_config.php    # auth_config_get/save/clear/toggle
-│   └── header.php / footer.php
+│   ├── db.php               # PDO singleton — db() (sets UTC timezone)
+│   ├── auth.php             # require_auth(), current_user(), PWD_REGEX
+│   ├── audit.php            # audit_by() — current user ID for created_by/updated_by
+│   ├── functions.php        # h(), public helper functions
+│   ├── db_login.php         # auth_user_count/find/create/update functions
+│   ├── db_profile.php       # auth_user_update_password/theme
+│   ├── db_auth_config.php   # auth_config_get/save/clear/toggle
+│   ├── db_users.php         # User management helpers
+│   ├── header.php           # <head>, CSS vars, site header, primary nav
+│   └── footer.php           # Footer with quick_links + contact
+│
+├── components/              # PHP include partials
+│   └── carousel.php         # Bootstrap carousel (reads assets/img/carousel/)
 │
 ├── admin/
-│   ├── _layout.php           # Admin chrome: topbar + sidebar (requires auth)
-│   ├── _layout_end.php       # Closes admin chrome, loads Bootstrap JS
-│   ├── style.css             # Material Shadcn theme (light/dark tokens, Inter font)
-│   ├── login.php             # Login + first-launch setup form
-│   ├── logout.php            # Session destroy
-│   ├── index.php             # Dashboard
-│   ├── profile.php           # Change password + theme preference
-│   ├── users.php             # User management (sa, admin)
-│   ├── auth_config.php       # OIDC / SAML provider configuration (sa only)
-│   ├── 403.php               # Access denied page
+│   ├── _layout.php          # Admin chrome: topbar + sidebar (requires auth)
+│   ├── _layout_end.php      # Closes admin chrome, loads Bootstrap JS
+│   ├── login.php            # Login + first-launch setup form
+│   ├── logout.php           # Session destroy
+│   ├── index.php            # Dashboard
+│   ├── profile.php          # Change password + theme preference
+│   ├── users.php            # User management (sa, admin)
+│   ├── users_ajax.php       # AJAX handler for inline user edits
+│   ├── carousel.php         # Carousel image upload + caption management
+│   ├── config_general.php   # General settings — identity, theme pack (sa only)
+│   ├── auth_config.php      # OIDC / SAML provider configuration (sa only)
+│   ├── 403.php              # Access denied page
 │   └── auth/
-│       ├── redirect.php      # Builds PKCE authorization URL → redirects to provider
-│       └── callback.php      # OAuth callback handler (receives code from provider)
+│       ├── redirect.php     # Builds PKCE authorization URL → redirects to provider
+│       ├── callback.php     # OAuth callback handler
+│       └── error.php        # OIDC provisioning error page
 │
-└── assets/
-    └── css/
-        └── site.css          # Public site styles
+└── assets/                  # Single static-file root (CSS, images)
+    ├── css/
+    │   ├── site.css         # Public site styles
+    │   ├── admin.css        # Admin Material Shadcn theme (light/dark, Inter font)
+    │   └── themes/          # Public theme packs — drop a .css here to add one
+    │       └── classic.css  # Default theme pack
+    └── img/
+        ├── logo.png
+        └── carousel/        # ← Docker volume mount (user-uploaded images)
 ```
 
 ---
@@ -737,7 +765,128 @@ $rows = db()->query(
 
 ---
 
-## 18. Troubleshooting
+## 18. PHP Configuration
+
+### Required PHP Extensions
+
+IRM requires three PHP extensions. Enable them in `php.ini` by removing the
+leading `;` from the relevant lines.
+
+| Extension | Why it's needed | `php.ini` line |
+|---|---|---|
+| `openssl` | OIDC/PKCE — HTTPS requests to the provider's discovery endpoint and token exchange | `extension=openssl` |
+| `pdo_mysql` | All database access via PDO | `extension=pdo_mysql` |
+| `pdo_odbc` | Optional — needed only if connecting through an ODBC data source | `extension=pdo_odbc` |
+
+```ini
+; in php.ini — uncomment these three lines (remove the leading semicolon)
+extension=openssl
+extension=pdo_mysql
+extension=pdo_odbc
+```
+
+On Windows the extension DLLs live in the `ext/` folder next to `php.exe`.
+Ensure `extension_dir` in `php.ini` points to that folder:
+
+```ini
+extension_dir = "C:\php-8.5.6\ext"
+```
+
+Restart PHP / PHP-FPM after any extension change. Verify with:
+
+```bash
+php -m | findstr /I "openssl pdo_mysql pdo_odbc"
+```
+
+---
+
+### Upload Limits
+
+The application enforces a configurable upload limit. The **single source of
+truth** is `UPLOAD_MAX_BYTES` in `.env` (default `5242880` = 5 MB). Both the
+PHP server-side check and the client-side drop zone pre-validation read this
+value — change it in one place and both are updated.
+
+> **PHP also has its own limits** (`upload_max_filesize`, `post_max_size` in
+> `php.ini`). These are enforced by PHP itself, *before* the application code
+> runs. If `UPLOAD_MAX_BYTES` is higher than `upload_max_filesize`, PHP will
+> silently truncate or reject large files. **Keep the php.ini limits ≥
+> `UPLOAD_MAX_BYTES`.**
+
+The default php.ini value (`upload_max_filesize = 2M`) is lower than the 5 MB
+application default — raise it using whichever method matches your deployment.
+
+### Option A — `php.ini` (recommended)
+
+Applies to: `php -S`, PHP-FPM, IIS with PHP, Docker.
+
+Find the active `php.ini`:
+
+```bash
+php --ini
+# or open a PHP page containing: <?php phpinfo(); ?>
+```
+
+> On Windows with the PHP installer the file is typically
+> `C:\php-x.x.x\php.ini`
+
+Add or update these two directives (adjust the values to match or exceed your
+`UPLOAD_MAX_BYTES` setting):
+
+```ini
+upload_max_filesize = 10M
+post_max_size       = 12M
+```
+
+> `post_max_size` must be larger than `upload_max_filesize` — it covers the
+> entire multipart body (file bytes + form fields).
+
+Restart PHP or PHP-FPM after saving.
+
+#### Docker — custom `php.ini` drop-in
+
+Place an override file in the container's `conf.d` directory instead of
+editing the base image's `php.ini`:
+
+```dockerfile
+COPY docker/php-uploads.ini /usr/local/etc/php/conf.d/uploads.ini
+```
+
+`docker/php-uploads.ini`:
+
+```ini
+upload_max_filesize = 10M
+post_max_size       = 12M
+```
+
+### Option B — `.htaccess` (Apache with `mod_php` only)
+
+Create `.htaccess` in the project root:
+
+```apache
+php_value upload_max_filesize 10M
+php_value post_max_size 12M
+```
+
+This overrides `php.ini` per-directory without a server restart and requires
+`AllowOverride All` in the Apache `<Directory>` block.
+
+> **Does not work** with PHP-FPM, Nginx, or `php -S`. Use Option A for
+> those setups.
+
+### Verifying the active limits
+
+```php
+<?php
+echo 'upload_max_filesize: ' . ini_get('upload_max_filesize') . PHP_EOL;
+echo 'post_max_size: '       . ini_get('post_max_size')       . PHP_EOL;
+```
+
+Or check the **PHP Info** page (`<?php phpinfo(); ?>`).
+
+---
+
+## 19. Troubleshooting
 
 ### Blank page / 500 error
 

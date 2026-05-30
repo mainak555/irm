@@ -31,7 +31,7 @@ The top-level key in `config/config.json` that holds school identity and contact
 _Avoid_: `school` key (deprecated)
 
 **Theme pack**:
-A named CSS file under `public/css/themes/` (e.g., `classic.css`, `modern.css`) that controls the public view's visual identity. The active pack slug is stored in `config.json → public.theme` and read via `cfg('public.theme')`. Available packs are discovered by scanning `public/css/themes/*.css` at request time — no manifest file. Distinct from the admin theme (light/dark/system) stored per-user in `auth_users.theme`.
+A named CSS file under `assets/css/themes/` (e.g., `classic.css`, `modern.css`) that controls the public view's visual identity. The active pack slug is stored in `config.json → public.theme` and read via `cfg('public.theme')`. Available packs are discovered by scanning `assets/css/themes/*.css` at request time — no manifest file. Distinct from the admin theme (light/dark/system) stored per-user in `auth_users.theme`.
 _Avoid_: template, skin, public theme (use "theme pack" as the noun phrase)
 
 ### User Management

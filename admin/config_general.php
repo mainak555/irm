@@ -9,7 +9,7 @@ require_auth('sa');
 $user = current_user();
 
 $config_path = __DIR__ . '/../config/config.json';
-$themes_dir  = __DIR__ . '/../public/css/themes';
+$themes_dir  = __DIR__ . '/../assets/css/themes';
 
 // ---- POST handler ----
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -83,7 +83,7 @@ require __DIR__ . '/_layout.php';
 
   <?php if (empty($theme_packs)): ?>
     <div class="alert alert-warning">
-      No theme packs found in <code>public/css/themes/</code>. Drop a <code>.css</code> file there to add one.
+      No theme packs found in <code>assets/css/themes/</code>. Drop a <code>.css</code> file there to add one.
     </div>
   <?php endif; ?>
 
@@ -187,7 +187,7 @@ require __DIR__ . '/_layout.php';
           <option value="classic" selected>Classic (default)</option>
         <?php endif; ?>
       </select>
-      <div class="form-text">CSS files in <code>public/css/themes/</code> appear here automatically.</div>
+      <div class="form-text">CSS files in <code>assets/css/themes/</code> appear here automatically.</div>
     </div>
 
     <div class="col-12 mt-3">

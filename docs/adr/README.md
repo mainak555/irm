@@ -21,3 +21,5 @@
 | [0017](0017-theme-pack-filesystem-discovery.md) | Theme pack CSS files discovered by filesystem scan, not manifest | accepted | 2026-05-30 |
 | [0018](0018-slides-json-flat-object-replaces-db-overlay.md) | slides.json flat object replaces DB caption overlay | accepted | 2026-05-30 |
 | [0019](0019-docker-volume-mounts-for-mutable-content.md) | Docker volume mounts for mutable content | accepted | 2026-05-30 |
+| [0020](0020-single-assets-tree-components-at-root.md) | Single assets tree — components at root level | accepted | 2026-05-30 |
+| [0021](0021-viewport-locked-admin-shell.md) | Viewport-locked admin shell — fixed navbar and sidebar | accepted | 2026-05-30 |
