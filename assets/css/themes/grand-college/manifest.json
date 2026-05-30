@@ -1,0 +1,15 @@
+{
+  "name": "Grand College",
+  "description": "Bold academic theme. Charcoal dark nav, gold-orange accent (#f0a500), clean white body.",
+  "version": "2.0.0",
+  "fonts": [
+    "Raleway:wght@400;500;600;700;800",
+    "Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400"
+  ],
+  "tokens": {
+    "primary":  "#f0a500",
+    "dark":     "#222222",
+    "text":     "#474747",
+    "heading":  "#222222"
+  }
+}

@@ -34,7 +34,8 @@
     "news-blue": "#2d4ea8"
   },
   "public": {
-    "theme": "classic"
+    "theme": "grand-college",
+    "layout": "grand-college"
   },
   "footer": {
     "copyright": "Copyright © 2026 — All Rights Reserved",
@@ -42,31 +43,31 @@
     "quick_links": [
       {
         "label": "Home",
-        "url": "index.php"
+        "url": "/"
       },
       {
         "label": "Contact Us",
-        "url": "page.php?slug=contact"
+        "url": "/contact"
       },
       {
         "label": "Sitemap",
-        "url": "sitemap.php"
+        "url": "/sitemap"
       },
       {
         "label": "Privacy Policy",
-        "url": "page.php?slug=privacy"
+        "url": "/privacy"
       },
       {
         "label": "Terms of Use",
-        "url": "page.php?slug=terms"
+        "url": "/terms"
       },
       {
         "label": "Copyright Information",
-        "url": "page.php?slug=copyright"
+        "url": "/copyright"
       },
       {
         "label": "Website Matters",
-        "url": "page.php?slug=website-matters"
+        "url": "/website-matters"
       }
     ]
   }

@@ -34,6 +34,60 @@ _Avoid_: `school` key (deprecated)
 A named CSS file under `assets/css/themes/` (e.g., `classic.css`, `modern.css`) that controls the public view's visual identity. The active pack slug is stored in `config.json → public.theme` and read via `cfg('public.theme')`. Available packs are discovered by scanning `assets/css/themes/*.css` at request time — no manifest file. Distinct from the admin theme (light/dark/system) stored per-user in `auth_users.theme`.
 _Avoid_: template, skin, public theme (use "theme pack" as the noun phrase)
 
+### Page Designer
+
+**Designer page**:
+A public-facing content page whose layout is stored as `config/public/{slug}.json`. Built via the admin page designer. Distinct from static PHP pages (`index.php`). Replaces the previously planned DB-based `pages` table concept entirely — `page.php` is retired.
+_Avoid_: content page, CMS page, static page
+
+**Page layout**:
+The JSON structure inside `config/public/{slug}.json` describing a page's content as an ordered list of rows, each containing 1–4 equal-width columns. Each column has a `type` that determines how it renders. The `home` slug is reserved for the public home page.
+_Avoid_: page template, page schema, layout config
+
+**Row**:
+A Bootstrap grid row inside a page layout. Contains 1–4 columns of equal width (Bootstrap auto `col`). Rows stack vertically in document order.
+_Avoid_: section, band, block
+
+**Column**:
+A single cell within a row. Has exactly one `type`: `html`, `embed`, or `component`. Equal-width within its row.
+_Avoid_: cell, slot, widget
+
+**Column type**:
+Determines how a column renders. Valid values: `html` (admin-authored HTML, JS stripped), `embed` (iframe/video/object with a sub-type), `component` (a PHP partial from `components/`).
+_Avoid_: block type, widget type
+
+**Embed sub-type**:
+The specific media kind for a column of type `embed`. Values: `youtube` → `<iframe>` (embed URL), `vimeo` → `<iframe>` (embed URL), `pdf` → `<object>`, `mp4` → `<video>` (external URL only), `website` → `<iframe>`. Admin selects from a dropdown and pastes the URL.
+_Avoid_: media type, embed kind
+
+**Component**:
+A self-contained PHP partial under `components/*.php` that renders itself with no variables injected by the caller. Discovered at runtime by filesystem scan — adding a file to `components/` makes it available in the designer dropdown immediately. Distinct from shell chrome (header, footer, nav) which is never a component.
+_Avoid_: widget, plugin, module
+
+**Shell chrome**:
+`includes/header.php` and `includes/footer.php` — always rendered on every public page, outside the designer's control. The primary nav is part of shell chrome and managed separately via the menu manager.
+_Avoid_: layout chrome (use shell chrome), wrapper
+
+**Slug**:
+The URL path segment and filename stem for a designer page. Pattern: `[a-z0-9-]` only. Maps bidirectionally: URL `/about` ↔ file `config/public/about.json`. Reserved slugs that cannot be used: `admin`, `assets`, `config`, `includes`, `components`, `api`. Duplicate slugs are blocked with an error.
+_Avoid_: page name, page id, URL key
+
+**Unlisted page**:
+A designer page that exists in `config/public/` but has no corresponding entry in `config/menu.json`. Reachable by direct URL, not visible in navigation. Used for drafting or auxiliary pages.
+_Avoid_: hidden page, draft page, orphan page
+
+**Menu manager**:
+The admin page (`admin/menu_manager.php`) restricted to `sa` role. Manages `config/menu.json` — add, edit, reorder, and delete nav items with optional one level of children. Separate from page creation.
+_Avoid_: nav editor, navigation settings
+
+**Page designer**:
+The admin page (`admin/page_designer.php`) accessible to `admin` and `sa` roles. Builds and edits designer page layouts row by row, column by column. Includes a right-side live preview pane (debounced POST to preview endpoint, rendered via `srcdoc`).
+_Avoid_: layout editor, page builder, page editor
+
+**Page renderer**:
+The PHP function in `includes/page_renderer.php` that reads a page layout array and outputs server-side HTML. Dispatches by column type. Strips `<script>` and `on*` attributes from `html`-type content at render time.
+_Avoid_: layout renderer, template engine
+
 ### User Management
 
 **Sentinel**:

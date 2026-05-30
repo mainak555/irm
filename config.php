@@ -73,9 +73,11 @@ function h(?string $s): string {
 
 // ---- Build a URL for a nav/menu item ----
 function menu_url(array $m): string {
-    if ((int)($m['is_external'] ?? 0) === 1) return (string)$m['page_target'];
-    if ($m['slug'] === 'home') return 'index.php';
-    return 'page.php?slug=' . urlencode((string)$m['slug']);
+    if ((int)($m['is_external'] ?? 0) === 1) {
+        return !empty($m['url']) ? (string)$m['url'] : (string)($m['page_target'] ?? '#');
+    }
+    $slug = (string)($m['slug'] ?? '');
+    return $slug === '' ? '/' : '/' . $slug;
 }
 
 // ---- Site/content configuration (config/config.json) ----

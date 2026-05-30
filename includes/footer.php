@@ -4,17 +4,26 @@ declare(strict_types=1);
 
 /**
  * includes/footer.php
- * Renders the dark footer + bottom bar and closes </body></html>.
- * Quick links and address come from config/config.json via cfg().
+ * Renders footer + closes </body></html>.
+ * Dispatches to layout pack footer.php if it exists, else uses generic fallback.
  */
 
 require_once __DIR__ . '/../config.php';
 
-$quick_links = cfg('footer.quick_links', []);
-$facebook    = cfg('general.social.facebook',  '');
-$twitter     = cfg('general.social.twitter',   '');
-$instagram   = cfg('general.social.instagram', '');
-$youtube     = cfg('general.social.youtube',   '');
+// Dispatch to layout pack footer if it exists, else generic fallback.
+$_layout_pack_key   = basename((string)cfg('public.layout', ''));
+$_layout_footer_php = $_layout_pack_key !== ''
+    ? __DIR__ . '/../assets/css/layouts/' . $_layout_pack_key . '/footer.php'
+    : '';
+
+if ($_layout_footer_php !== '' && is_file($_layout_footer_php)) {
+    require $_layout_footer_php;
+} else {
+    $quick_links = cfg('footer.quick_links', []);
+    $facebook    = cfg('general.social.facebook',  '');
+    $twitter     = cfg('general.social.twitter',   '');
+    $instagram   = cfg('general.social.instagram', '');
+    $youtube     = cfg('general.social.youtube',   '');
 ?>
 <footer>
   <div class="container foot-grid">
@@ -66,6 +75,8 @@ $youtube     = cfg('general.social.youtube',   '');
     </div>
   </div>
 </footer>
+<?php } ?>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

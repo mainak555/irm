@@ -145,6 +145,34 @@ if (localStorage.getItem('irm_sidebar') === 'collapsed')
       <?php endif; ?>
 
       <?php if (in_array($role, ['sa', 'admin'], true)): ?>
+      <?php $contentOpen = in_array($current_page, ['pages', 'page_designer', 'menu_manager'], true); ?>
+      <div class="accordion-item border-0">
+        <h2 class="accordion-header">
+          <button class="accordion-button <?= $contentOpen ? '' : 'collapsed' ?> px-2 py-2"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#contentMenu"
+                  aria-expanded="<?= $contentOpen ? 'true' : 'false' ?>"
+                  aria-controls="contentMenu">
+            Content
+          </button>
+        </h2>
+        <div id="contentMenu"
+             class="accordion-collapse collapse <?= $contentOpen ? 'show' : '' ?>"
+             data-bs-parent="#sidebarAccordion">
+          <div class="accordion-body py-1 px-0">
+            <a class="nav-link ps-3 <?= in_array($current_page, ['pages', 'page_designer'], true) ? 'active' : '' ?>"
+               href="/admin/pages.php">Pages</a>
+            <?php if ($role === 'sa'): ?>
+            <a class="nav-link ps-3 <?= $current_page === 'menu_manager' ? 'active' : '' ?>"
+               href="/admin/menu_manager.php">Menu Manager</a>
+            <?php endif; ?>
+          </div>
+        </div>
+      </div>
+      <?php endif; ?>
+
+      <?php if (in_array($role, ['sa', 'admin'], true)): ?>
       <?php $settingsOpen = str_starts_with($current_page, 'config_') || $current_page === 'carousel'; ?>
       <div class="accordion-item border-0">
         <h2 class="accordion-header">

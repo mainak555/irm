@@ -1,0 +1,38 @@
+{
+  "name": "Grand College",
+  "pages": [
+    {
+      "id": "landing",
+      "label": "Landing Page",
+      "slots": [
+        { "id": "hero",      "label": "Hero Banner",    "hint": "Heading (<h2>), subtitle (<p>), CTA links (<a>). Second link becomes outline style." },
+        { "id": "feature-1", "label": "Feature Box 1",  "hint": "Emoji (<p>🎓</p>), title (<h4>), description (<p>)." },
+        { "id": "feature-2", "label": "Feature Box 2",  "hint": "Same structure as Feature Box 1." },
+        { "id": "feature-3", "label": "Feature Box 3",  "hint": "Same structure as Feature Box 1." },
+        { "id": "feature-4", "label": "Feature Box 4",  "hint": "Same structure as Feature Box 1." },
+        { "id": "highlight", "label": "Highlight",      "hint": "Component (e.g. carousel) or any HTML content." },
+        { "id": "stat-1",    "label": "Stat 1",         "hint": "Bold number (<strong>5000+</strong>) then label (<p>Students Enrolled</p>)." },
+        { "id": "stat-2",    "label": "Stat 2",         "hint": "Same structure as Stat 1." },
+        { "id": "stat-3",    "label": "Stat 3",         "hint": "Same structure as Stat 1." },
+        { "id": "stat-4",    "label": "Stat 4",         "hint": "Same structure as Stat 1." },
+        { "id": "cta",       "label": "Call to Action", "hint": "Heading (<h2>), paragraph (<p>), one CTA link (<a>)." }
+      ]
+    },
+    {
+      "id": "two-column",
+      "label": "Two Column",
+      "slots": [
+        { "id": "intro",   "label": "Page Heading",  "hint": "Page title (<h1>) and optional subtitle (<p>)." },
+        { "id": "main",    "label": "Main Content",  "hint": "Rich HTML — headings, paragraphs, lists, links." },
+        { "id": "sidebar", "label": "Sidebar",       "hint": "Short links, contact info, quick facts." }
+      ]
+    },
+    {
+      "id": "full-width",
+      "label": "Full Width",
+      "slots": [
+        { "id": "main", "label": "Content", "hint": "Full-width HTML content or a single component." }
+      ]
+    }
+  ]
+}

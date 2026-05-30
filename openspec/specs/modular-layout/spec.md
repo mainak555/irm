@@ -17,13 +17,36 @@ Reusable `includes/header.php` and `includes/footer.php` so any public page prod
 - **WHEN** `config.json → school.title` is `"Ramakrishna Mission Boys' Home ITC"`
 - **THEN** the `<title>` tag SHALL contain that string (escaped via `h()`)
 
+#### Scenario: No hardcoded school name in header.php
+- **WHEN** `includes/header.php` is read
+- **THEN** the school name string SHALL NOT appear as a PHP string literal; it SHALL only be output via `cfg('school.title')`
+
+### Requirement: Nav reads from menu.json
+`includes/header.php` SHALL read `config/menu.json` and render the primary navigation. When a top-level item has a non-empty `children` array, it SHALL render a Bootstrap 5.3 dropdown with the top-level item as the toggle button and its children as dropdown items. When a top-level item has no children (or an empty `children` array), it SHALL render a plain `<a>` link. The active-state class SHALL be applied to the top-level item whose slug matches `$active_slug`, even when the active page is a child of that item. Every label, URL, and attribute value rendered to HTML SHALL be escaped with `h()`.
+
 #### Scenario: Nav reads from menu.json
 - **WHEN** `config/menu.json` has active top-level items
 - **THEN** `includes/header.php` SHALL render those items as nav links
 
-#### Scenario: No hardcoded school name in header.php
-- **WHEN** `includes/header.php` is read
-- **THEN** the school name string SHALL NOT appear as a PHP string literal; it SHALL only be output via `cfg('school.title')`
+#### Scenario: Flat item renders as plain link
+- **WHEN** a top-level item has no `children` array (or an empty array)
+- **THEN** the nav SHALL render a plain `<a>` element for that item (no dropdown markup)
+
+#### Scenario: Item with children renders Bootstrap dropdown
+- **WHEN** a top-level item has a `children` array with at least one entry
+- **THEN** the nav SHALL render a `<li class="nav-item dropdown">` with a `data-bs-toggle="dropdown"` toggle and a `<ul class="dropdown-menu">` containing the children
+
+#### Scenario: Child items rendered as dropdown-item links
+- **WHEN** a top-level dropdown item has two child entries
+- **THEN** the `<ul class="dropdown-menu">` SHALL contain two `<a class="dropdown-item">` elements with the children's labels and resolved URLs
+
+#### Scenario: Active class on parent when child page is active
+- **WHEN** `$active_slug` matches the slug of a child item inside a dropdown parent
+- **THEN** the parent `<li>` SHALL receive the active class (not the child link)
+
+#### Scenario: External links open in new tab
+- **WHEN** a menu item (top-level or child) has `is_external` equal to `1`
+- **THEN** its rendered `<a>` tag SHALL have `target="_blank"` and `rel="noopener"`
 
 ### Requirement: Reusable footer include
 `includes/footer.php` SHALL render the complete site footer — including quick links, contact details, copyright notice, and closing `</body></html>` tags — in a single `require_once`. Contact details and copyright SHALL come from `cfg()`. Quick links SHALL come from `cfg('footer.quick_links')`. Every value rendered to HTML SHALL be wrapped in `h()`.
@@ -45,18 +68,14 @@ Reusable `includes/header.php` and `includes/footer.php` so any public page prod
 - **THEN** the address and phone strings SHALL NOT appear as PHP string literals
 
 ### Requirement: Any public page can use header and footer
-Any PHP page in the public web root (e.g., `index.php`, `page.php`) SHALL be able to produce a complete, valid HTML document by requiring `includes/header.php` at the top and `includes/footer.php` at the bottom. No additional markup SHALL be needed for the chrome.
+Any PHP page in the public web root (e.g., `index.php`) SHALL be able to produce a complete, valid HTML document by requiring `includes/header.php` at the top and `includes/footer.php` at the bottom. No additional markup SHALL be needed for the chrome.
 
 #### Scenario: index.php uses both includes
 - **WHEN** `index.php` is loaded
 - **THEN** it SHALL contain `require_once 'includes/header.php'` and `require_once 'includes/footer.php'`
 
-#### Scenario: page.php uses both includes
-- **WHEN** `page.php` is loaded
-- **THEN** it SHALL contain `require_once 'includes/header.php'` and `require_once 'includes/footer.php'`
-
 #### Scenario: Resulting HTML is well-formed
-- **WHEN** either page is rendered
+- **WHEN** a designer page is rendered via `index.php`
 - **THEN** the output SHALL have exactly one `<html>`, one `<head>`, one `<body>`, and the corresponding closing tags
 
 ### Requirement: No layout markup duplicated across pages

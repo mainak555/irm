@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
 
-$_carousel_dir  = __DIR__ . '/../../assets/img/carousel/';
-$_carousel_json = __DIR__ . '/../../config/slides.json';
+$_carousel_dir  = __DIR__ . '/../assets/img/carousel/';
+$_carousel_json = __DIR__ . '/../config/slides.json';
 
 $_images = glob($_carousel_dir . '*.{jpg,jpeg,png,gif,webp}', GLOB_BRACE) ?: [];
 if (empty($_images)) {
@@ -17,14 +17,8 @@ if (!is_array($_captions)) {
     $_captions = [];
 }
 
-$_layout    = $layout ?? 'full';
-$_col_class = match ($_layout) {
-    'col-left'  => 'col-md-6 order-md-1',
-    'col-right' => 'col-md-6 order-md-2',
-    default     => 'col-12',
-};
 ?>
-<div class="<?= h($_col_class) ?>">
+<div class="col-12">
   <div id="irmCarousel" class="carousel slide" data-bs-ride="carousel">
     <div class="carousel-inner">
       <?php foreach ($_images as $_i => $_img):
