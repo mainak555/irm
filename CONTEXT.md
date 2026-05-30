@@ -11,12 +11,20 @@ The sub-item under the Authorization accordion linking to `admin/auth_config.php
 _Avoid_: Settings (ambiguous — Settings is a top-level accordion), Auth Settings
 
 **Settings** (accordion):
-The top-level sidebar accordion visible only to `sa` role. Contains sub-items for site-wide configuration stored in JSON files: General, and future items (Home, Menu). Distinct from Authorization which manages users and auth providers.
+The top-level sidebar accordion visible to `admin` and `sa` roles. Contains sub-items for site-wide configuration stored in JSON files: General (sa-only) and Carousel (admin + sa). Distinct from Authorization which manages users and auth providers.
 _Avoid_: Config menu, Admin settings
 
 **General**:
-The sub-item under the Settings accordion linking to `admin/config_general.php`. Edits `config/config.json → general.*` fields (title, subtitle, logoUrl, address, phone, fax, email, social.facebook) and the active theme pack slug (`public.theme`). The `colors` and `footer` sections of config.json are out of scope for this page.
+The sub-item under the Settings accordion linking to `admin/config_general.php`. Restricted to `sa` role only. Edits `config/config.json → general.*` fields (title, subtitle, logoUrl, address, phone, fax, email, social.facebook) and the active theme pack slug (`public.theme`). The `colors` and `footer` sections of config.json are out of scope for this page.
 _Avoid_: Basic Configuration, Site Settings, Settings
+
+**Carousel**:
+The sub-item under the Settings accordion linking to `admin/carousel.php`. Accessible to `admin` and `sa` roles. Manages carousel slides — uploads images to `assets/img/carousel/` and writes captions to `config/slides.json`. Images dropped directly into the folder (e.g. at deploy time) also appear without requiring an admin action.
+_Avoid_: Slider, Hero, Banner
+
+**`slides.json`**:
+A flat JSON object at `config/slides.json` mapping image filename (e.g. `"main_building.jpg"`) to a caption string. Written by the admin Carousel page. Read by the public carousel component. Images with no entry in `slides.json` render with no caption. Replaces the previous array-of-objects schema.
+_Avoid_: slides array, hero_slides
 
 **`general` (config key)**:
 The top-level key in `config/config.json` that holds school identity and contact fields. Replaces the previous `school` key — all `cfg('school.*')` calls become `cfg('general.*')`. This rename is a **BREAKING** change tracked in the json-config-settings proposal.

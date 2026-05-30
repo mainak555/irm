@@ -23,72 +23,16 @@ $news_raw = is_readable(__DIR__ . '/config/news.json')
     : '[]';
 $news = array_slice(json_decode((string)$news_raw, true) ?? [], 0, 8);
 
-// --- Carousel: folder-first + DB caption overlay ---
-$folder_slides = glob(__DIR__ . '/assets/img/carousel/*.{jpg,jpeg,png,gif,webp}', GLOB_BRACE);
-if (!is_array($folder_slides)) {
-    $folder_slides = [];
-}
-natsort($folder_slides);
-$folder_slides = array_values($folder_slides);
-
-// Fetch hero_slides for caption overlay and JSON-only slides
-$slides_raw = is_readable(__DIR__ . '/config/slides.json')
-    ? file_get_contents(__DIR__ . '/config/slides.json')
-    : '[]';
-$db_slides = json_decode((string)$slides_raw, true) ?? [];
-
-// Index DB slides by basename for fast lookup
-$db_by_file = [];
-foreach ($db_slides as $row) {
-    $db_by_file[basename((string)$row['image_path'])] = $row;
-}
-
-// Build merged slide list
-$slides = [];
-
-// 1. Folder images (DB caption if available, else derive from filename)
-foreach ($folder_slides as $path) {
-    $rel  = 'assets/img/carousel/' . basename($path);
-    $base = basename($path);
-    if (isset($db_by_file[$base])) {
-        $slides[] = ['src' => $rel, 'caption' => $db_by_file[$base]['caption']];
-    } else {
-        $name = pathinfo($base, PATHINFO_FILENAME);
-        $slides[] = ['src' => $rel, 'caption' => ucwords(str_replace('_', ' ', $name))];
-    }
-}
-
-// 2. DB-only slides (paths not found in folder)
-$folder_basenames = array_map('basename', $folder_slides);
-foreach ($db_slides as $row) {
-    if (!in_array(basename((string)$row['image_path']), $folder_basenames, true)) {
-        $slides[] = ['src' => $row['image_path'], 'caption' => $row['caption']];
-    }
-}
-
 require_once __DIR__ . '/includes/header.php';
 ?>
 
-<section class="hero container">
-
-  <!-- ===== Carousel ===== -->
-  <div>
-    <div class="carousel">
-      <div class="carousel-stage">
-        <?php if ($slides): $first = $slides[0]; ?>
-          <img id="heroImg" src="<?= h($first['src']) ?>" alt="<?= h($first['caption']) ?>" />
-          <div class="carousel-caption" id="heroCap"><?= h($first['caption']) ?></div>
-        <?php else: ?>
-          <div style="color:#aaa;padding:40px;text-align:center;">No slides configured</div>
-        <?php endif; ?>
-      </div>
-    </div>
-    <div class="carousel-arrows">
-      <button class="arrow-btn" id="prevBtn" aria-label="Previous">‹</button>
-      <div class="thumbs" id="thumbs"></div>
-      <button class="arrow-btn" id="nextBtn" aria-label="Next">›</button>
-    </div>
+<div class="container my-3">
+  <div class="row">
+    <?php $layout = 'full'; require __DIR__ . '/public/components/carousel.php'; ?>
   </div>
+</div>
+
+<section class="hero container">
 
   <!-- ===== Welcome / About column ===== -->
   <div class="intro">
@@ -209,32 +153,5 @@ require_once __DIR__ . '/includes/header.php';
   </section>
 
 </div>
-
-<script>
-  const slides = <?= json_encode(
-      array_map(fn($s) => ['src' => $s['src'], 'caption' => $s['caption']], $slides),
-      JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
-  ) ?>;
-  const heroImg = document.getElementById('heroImg');
-  const heroCap = document.getElementById('heroCap');
-  const thumbsEl = document.getElementById('thumbs');
-  let idx = 0;
-  function render() {
-    if (!slides.length) return;
-    heroImg.src = slides[idx].src;
-    heroCap.textContent = slides[idx].caption;
-    [...thumbsEl.children].forEach((t, i) => t.classList.toggle('active', i === idx));
-  }
-  slides.forEach((s, i) => {
-    const d = document.createElement('div');
-    d.className = 'thumb' + (i === 0 ? ' active' : '');
-    d.innerHTML = '<img src="' + s.src + '" alt="" />';
-    d.addEventListener('click', () => { idx = i; render(); });
-    thumbsEl.appendChild(d);
-  });
-  document.getElementById('prevBtn').addEventListener('click', () => { idx = (idx - 1 + slides.length) % slides.length; render(); });
-  document.getElementById('nextBtn').addEventListener('click', () => { idx = (idx + 1) % slides.length; render(); });
-  if (slides.length > 1) setInterval(() => { idx = (idx + 1) % slides.length; render(); }, 6000);
-</script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

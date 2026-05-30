@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Hero carousel with zero-friction image management. Drop a file into `assets/img/carousel/` and it appears as a slide on next page load — no DB entry or code change required. `config/slides.json` provides optional caption overrides and JSON-only slides (replaces the `hero_slides` DB table overlay).
+Hero carousel with zero-friction image management. Drop a file into `assets/img/carousel/` and it appears as a slide on next page load — no DB entry or code change required. `config/slides.json` provides optional caption overrides as a flat `{filename: caption}` object (replaces the `hero_slides` DB table overlay). JSON-only slides are not supported; every visible slide must have a physical file in the folder.
 
 ## Requirements
 
@@ -25,37 +25,25 @@ Hero carousel with zero-friction image management. Drop a file into `assets/img/
 - **WHEN** `assets/img/carousel/` contains a `readme.txt` and a `slide.bmp`
 - **THEN** neither file SHALL appear in the carousel slide list
 
-### Requirement: Caption overlay from slides.json
-If a glob-discovered image has no matching entry in `config/slides.json` (matched by basename), `index.php` SHALL use the image filename without its extension as the slide caption, with underscores replaced by spaces and the string title-cased. If a matching entry exists in `slides.json` its `caption` field SHALL be used instead.
+### Requirement: Caption overlay from slides.json flat object
 
-`config/slides.json` SHALL be a JSON array of objects with at minimum `image_path` (string) and `caption` (string). This file replaces the DB `hero_slides` table for caption overlay and JSON-only slides.
+`index.php` (and the carousel component) SHALL read `config/slides.json` as a flat JSON object where each key is an image basename (e.g. `"campus.jpg"`) and each value is a caption string. For each glob-discovered image, the reader SHALL look up `basename($imagePath)` in the decoded object. If the key exists and its value is a non-empty string, that string SHALL be used as the slide caption. If the key is absent or the value is empty, no caption SHALL be rendered for that slide.
 
-#### Scenario: No slides.json entry uses filename as caption
-- **WHEN** `assets/img/carousel/main_building.jpg` exists but no entry in `slides.json` has `image_path` matching that filename
-- **THEN** the slide SHALL render with the caption `"Main Building"`
+#### Scenario: Flat object key matches basename
+- **WHEN** `slides.json` is `{"campus.jpg": "Our Campus"}` and `assets/img/carousel/campus.jpg` exists
+- **THEN** the carousel SHALL render that slide with the caption `"Our Campus"`
 
-#### Scenario: slides.json entry caption takes precedence
-- **WHEN** `slides.json` contains an entry with `image_path` matching `main_building.jpg` and `caption = "Our Heritage Building"`
-- **THEN** the slide SHALL render with `"Our Heritage Building"` as the caption
+#### Scenario: Missing key renders no caption
+- **WHEN** `hall.png` is in the folder but `slides.json` has no `"hall.png"` key
+- **THEN** the carousel SHALL render that slide with no caption element
 
-#### Scenario: Caption text is HTML-escaped
-- **WHEN** a `slides.json` caption contains `<script>alert(1)</script>`
-- **THEN** the rendered carousel caption SHALL display the literal characters and not execute the script
+#### Scenario: Empty value renders no caption
+- **WHEN** `slides.json` contains `{"campus.jpg": ""}` and `campus.jpg` is in the folder
+- **THEN** the carousel SHALL render that slide with no caption element
 
-### Requirement: slides.json-only slides still rendered
-Slide entries in `config/slides.json` with an `image_path` that does not match any file in `assets/img/carousel/` (e.g., paths pointing elsewhere) SHALL still be rendered by `index.php`. The final slide list SHALL be the union of folder-discovered images and JSON-only slides, deduplicated by basename.
-
-#### Scenario: slides.json entry with non-folder path renders
-- **WHEN** a `slides.json` entry has `image_path = "assets/img/special/banner.jpg"` not present in the carousel folder
-- **THEN** the carousel SHALL include a slide with that image source
-
-#### Scenario: Folder image matched to slides.json entry not duplicated
-- **WHEN** a `slides.json` entry has `image_path` matching the basename of a file in `assets/img/carousel/`
-- **THEN** that image SHALL appear exactly once in the slide list
-
-#### Scenario: Empty folder falls back to slides.json-only entries
-- **WHEN** `assets/img/carousel/` is empty but `slides.json` has entries
-- **THEN** the carousel SHALL still render the JSON slides
+#### Scenario: slides.json decoded as object not array
+- **WHEN** `slides.json` is read via `json_decode(file_get_contents(...), true)`
+- **THEN** the result SHALL be a PHP associative array (not a list), with string keys and string values
 
 ### Requirement: Carousel folder must exist
 The `assets/img/carousel/` directory SHALL exist in the repository (tracked via a `.gitkeep` file) so that `glob()` does not produce a warning on a fresh checkout.

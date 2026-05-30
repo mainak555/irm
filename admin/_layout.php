@@ -141,8 +141,8 @@ if (localStorage.getItem('irm_sidebar') === 'collapsed')
       </div>
       <?php endif; ?>
 
-      <?php if ($role === 'sa'): ?>
-      <?php $settingsOpen = str_starts_with($current_page, 'config_'); ?>
+      <?php if (in_array($role, ['sa', 'admin'], true)): ?>
+      <?php $settingsOpen = str_starts_with($current_page, 'config_') || $current_page === 'carousel'; ?>
       <div class="accordion-item border-0">
         <h2 class="accordion-header">
           <button class="accordion-button <?= $settingsOpen ? '' : 'collapsed' ?> px-2 py-2"
@@ -158,8 +158,12 @@ if (localStorage.getItem('irm_sidebar') === 'collapsed')
              class="accordion-collapse collapse <?= $settingsOpen ? 'show' : '' ?>"
              data-bs-parent="#sidebarAccordion">
           <div class="accordion-body py-1 px-0">
+            <?php if ($role === 'sa'): ?>
             <a class="nav-link ps-3 <?= $current_page === 'config_general' ? 'active' : '' ?>"
                href="/admin/config_general.php">General</a>
+            <?php endif; ?>
+            <a class="nav-link ps-3 <?= $current_page === 'carousel' ? 'active' : '' ?>"
+               href="/admin/carousel.php">Carousel</a>
           </div>
         </div>
       </div>

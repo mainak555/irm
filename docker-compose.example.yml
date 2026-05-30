@@ -1,0 +1,44 @@
+version: "3.9"
+
+# Example Docker Compose for IRM School CMS
+# Copy to docker-compose.yml and adjust paths before use.
+
+services:
+  web:
+    image: irm:latest          # build from Dockerfile or pull from registry
+    ports:
+      - "80:80"
+    volumes:
+      # REQUIRED: instance-specific configuration (slides.json, config.json, etc.)
+      # Must be mounted so that admin edits survive container rebuilds (ADR-0019).
+      - ./config:/var/www/html/config
+
+      # REQUIRED: carousel images uploaded via admin or dropped at deploy time.
+      # Without this mount, uploaded images are lost on rebuild.
+      - ./assets/img/carousel:/var/www/html/assets/img/carousel
+
+      # FUTURE: gallery images (mount when gallery feature ships)
+      # - ./assets/img/gallery:/var/www/html/assets/img/gallery
+
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: irm
+      DB_USER: irm
+      DB_PASS: changeme
+      APP_SECRET: changeme-use-a-random-string
+      APP_DEBUG: "false"
+
+  db:
+    image: mariadb:11
+    environment:
+      MARIADB_ROOT_PASSWORD: rootchangeme
+      MARIADB_DATABASE: irm
+      MARIADB_USER: irm
+      MARIADB_PASSWORD: changeme
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./sql/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+
+volumes:
+  db_data:
