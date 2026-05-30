@@ -130,6 +130,9 @@ irm/
 │   ├── profile.php          — Change password + theme preference
 │   ├── users.php            — User management (sa, admin)
 │   ├── users_ajax.php       — Inline user edit AJAX handler
+│   ├── pages.php            — Page list: create/edit/delete designer pages
+│   ├── page_designer.php    — Slot-based page editor (create + edit mode)
+│   ├── page_preview.php     — Server-side preview renderer (POST JSON → HTML)
 │   ├── carousel.php         — Carousel image upload + caption editor
 │   ├── config_general.php   — General settings: identity, theme pack (sa only)
 │   ├── auth_config.php      — OIDC provider config (sa only)
@@ -327,10 +330,10 @@ Theme pack CSS files are **baked into the image** (shipped code, not user data).
 - [x] General settings admin: identity, theme pack, social links
 - [x] Single `assets/` tree — no split between public/ and assets/ (ADR-0020)
 - [x] Viewport-locked admin chrome — navbar + sidebar fixed, only main content scrolls (ADR-0021)
+- [x] Page designer — slot-based page editor with layout pack support; preview opens public URL in new tab (ADR-0023)
 
 ### Near-term
 - [ ] `news.php` — public single-article view
-- [ ] `admin/pages.php` — CRUD for content pages
 - [ ] Gallery module + Docker volume mount for `assets/img/gallery/`
 
 ### Future

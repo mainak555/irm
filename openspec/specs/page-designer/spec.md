@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Admin UI for creating and managing public-facing designer pages. Pages are stored as JSON files in `config/public/` and rendered by the public slug router. The designer provides a slot-based form for attaching content (HTML, components, or embeds) to layout template slots, plus a live preview pane.
+Admin UI for creating and managing public-facing designer pages. Pages are stored as JSON files in `config/public/` and rendered by the public slug router. The designer provides a slot-based form for attaching content (HTML, components, or embeds) to layout template slots.
 
 ## Requirements
 
@@ -29,6 +29,15 @@ Admin UI for creating and managing public-facing designer pages. Pages are store
 #### Scenario: Load existing page into designer
 - **WHEN** admin navigates to `admin/page_designer.php?slug=about` and `config/public/about.json` exists
 - **THEN** the designer SHALL populate the slug field, title, description, and all rows/columns from the JSON
+
+#### Scenario: Preview button visible in edit mode only
+- **WHEN** admin is on `admin/page_designer.php?slug=about` (edit mode)
+- **THEN** a "Preview" button SHALL appear in the page header to the right of the "← Pages" button
+- **AND** clicking it SHALL open `/about` in a new browser tab
+
+#### Scenario: Preview button absent in create mode
+- **WHEN** admin is on `admin/page_designer.php` without a slug parameter (create mode)
+- **THEN** the "Preview" button SHALL NOT be rendered in the page header
 
 #### Scenario: Create mode starts with one empty row
 - **WHEN** admin navigates to `admin/page_designer.php` without a slug parameter
@@ -116,20 +125,12 @@ When a column type is set to `component`, the designer SHALL show a dropdown lis
 
 ---
 
-### Requirement: Live preview pane
-The designer SHALL include a right-side `<iframe>` preview pane. When any layout field changes, the designer SHALL POST the current draft layout JSON to `admin/page_preview.php` after a 500ms debounce and set the iframe's `srcdoc` attribute to the returned HTML.
+### Requirement: Preview saved page in new tab
+When editing an existing page, the designer header SHALL render a "Preview" button to the right of the "← Pages" button. Clicking it SHALL open the public URL for that page (`/<slug>`) in a new browser tab. The button SHALL only appear in edit mode (ADR-0023).
 
-#### Scenario: Preview updates after debounce
-- **WHEN** admin types in the HTML textarea and then pauses for 500ms
-- **THEN** the preview iframe SHALL refresh to reflect the new content
-
-#### Scenario: Preview does not fire on every keystroke
-- **WHEN** admin types rapidly in any field
-- **THEN** only one preview fetch SHALL be sent (the one triggered after 500ms of inactivity)
-
-#### Scenario: Preview shows error on invalid layout
-- **WHEN** `admin/page_preview.php` returns `{ "ok": false, "msg": "…" }`
-- **THEN** the designer SHALL display the error message as an inline toast and SHALL NOT update the iframe
+#### Scenario: Preview opens public URL
+- **WHEN** admin clicks "Preview" on `admin/page_designer.php?slug=contact`
+- **THEN** a new browser tab SHALL open at `/contact`
 
 ---
 

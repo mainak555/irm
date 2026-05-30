@@ -147,7 +147,12 @@ require __DIR__ . '/_layout.php';
 <div class="container-fluid px-4 py-3">
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h4 class="mb-0"><?= $is_edit ? 'Edit Page' : 'New Page' ?></h4>
-    <a href="/admin/pages.php" class="btn btn-outline-secondary btn-sm">← Pages</a>
+    <div class="d-flex gap-2">
+      <a href="/admin/pages.php" class="btn btn-outline-secondary btn-sm">← Pages</a>
+      <?php if ($is_edit): ?>
+        <a href="/<?= h($edit_slug) ?>" target="_blank" class="btn btn-outline-secondary btn-sm">Preview</a>
+      <?php endif; ?>
+    </div>
   </div>
 
   <?php foreach ($errors as $err): ?>
@@ -155,8 +160,7 @@ require __DIR__ . '/_layout.php';
   <?php endforeach; ?>
 
   <div class="row g-3">
-    <!-- Left: form -->
-    <div class="col-lg-7">
+    <div class="col-12">
       <form method="post"
             action="/admin/page_designer.php<?= $is_edit ? '?slug=' . urlencode($edit_slug) : '' ?>"
             id="pdForm">
@@ -209,22 +213,6 @@ require __DIR__ . '/_layout.php';
         <button type="submit" class="btn btn-primary">Save Page</button>
       </form>
     </div>
-
-    <!-- Right: live preview -->
-    <div class="col-lg-5">
-      <div class="card border-0 shadow-sm" style="position:sticky;top:70px">
-        <div class="card-header d-flex align-items-center justify-content-between py-2">
-          <span class="fw-semibold small">Preview</span>
-          <span id="previewStatus" class="text-muted small"></span>
-        </div>
-        <div class="card-body p-0">
-          <iframe id="previewFrame"
-                  style="width:100%;min-height:520px;border:0;border-radius:0 0 var(--irm-radius) var(--irm-radius)"
-                  srcdoc="&lt;p style='padding:1rem;color:#888'&gt;Select a layout to see preview…&lt;/p&gt;">
-          </iframe>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -240,8 +228,6 @@ const EMBED_HINTS = {
   mp4:     'MP4: paste a direct URL to the .mp4 file',
   website: 'Website: paste the full URL of the page to embed',
 };
-
-let debounceTimer = null;
 
 // Escape HTML for safe injection into JS-built innerHTML
 function esc(str) {
@@ -261,7 +247,6 @@ function buildSlotPanels(layoutId) {
   page.slots.forEach(slot => {
     container.appendChild(createSlotPanel(slot, savedSlots[slot.id] || null));
   });
-  schedulePreview();
 }
 
 function createSlotPanel(slot, saved) {
@@ -351,7 +336,6 @@ function onSlotTypeChange(radio) {
     f.classList.toggle('active', show);
     f.style.display = show ? '' : 'none';
   });
-  schedulePreview();
 }
 
 function onLayoutChange(sel) {
@@ -364,60 +348,6 @@ function updateEmbedHint(sel) {
   if (hint) hint.textContent = EMBED_HINTS[sel.value] || '';
 }
 
-function collectLayout() {
-  const layoutId = document.getElementById('layoutSelect').value;
-  const slots    = {};
-  document.querySelectorAll('#slotContainer [data-slot-id]').forEach(panel => {
-    const sid     = panel.dataset.slotId;
-    const typeRad = panel.querySelector('input[name$="[type]"]:checked');
-    const type    = typeRad ? typeRad.value : 'html';
-    if (type === 'html') {
-      const ta = panel.querySelector('textarea');
-      slots[sid] = { type, html: ta ? ta.value : '' };
-    } else if (type === 'component') {
-      const sel = panel.querySelector('[data-role="component-name"]');
-      slots[sid] = { type, name: sel ? sel.value : '' };
-    } else if (type === 'embed') {
-      const st = panel.querySelector('select[name$="[subtype]"]');
-      const ur = panel.querySelector('input[name$="[url]"]');
-      const ti = panel.querySelector('input[name$="[title]"]');
-      slots[sid] = {
-        type,
-        subtype: st ? st.value : 'youtube',
-        url:     ur ? ur.value : '',
-        title:   ti ? ti.value : '',
-      };
-    }
-  });
-  return { layout_id: layoutId, slots };
-}
-
-function schedulePreview() {
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(fetchPreview, 600);
-}
-
-async function fetchPreview() {
-  const statusEl = document.getElementById('previewStatus');
-  statusEl.textContent = 'Updating…';
-  try {
-    const resp = await fetch('/admin/page_preview.php', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Fetch': '1' },
-      body:    JSON.stringify({ layout: collectLayout() }),
-    });
-    const data = await resp.json();
-    if (data.ok) {
-      document.getElementById('previewFrame').srcdoc = data.html;
-      statusEl.textContent = '';
-    } else {
-      statusEl.textContent = data.msg || 'Preview error';
-    }
-  } catch {
-    statusEl.textContent = 'Preview unavailable';
-  }
-}
-
 function initDesigner() {
   const sel = document.getElementById('layoutSelect');
   if (window.irmPageData && window.irmPageData.layout_id) {
@@ -426,11 +356,7 @@ function initDesigner() {
   buildSlotPanels(sel.value);
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-  initDesigner();
-  document.getElementById('pdForm').addEventListener('input',  schedulePreview);
-  document.getElementById('pdForm').addEventListener('change', schedulePreview);
-});
+document.addEventListener('DOMContentLoaded', initDesigner);
 </script>
 
 <?php require __DIR__ . '/_layout_end.php'; ?>
