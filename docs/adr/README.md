@@ -18,3 +18,4 @@
 | [0014](0014-guard-target-same-rank-param.md) | guard_target() same-rank enforcement via boolean parameter | superseded by ADR-0016 | 2026-05-29 |
 | [0015](0015-audit-columns-display-standard.md) | Audit columns UI standard: show Updated only; tooltip-only timezone | accepted | 2026-05-29 |
 | [0016](0016-creator-ownership-same-rank-guard.md) | Creator-ownership replaces role-based same-rank exemption | accepted | 2026-05-29 |
+| [0017](0017-theme-pack-filesystem-discovery.md) | Theme pack CSS files discovered by filesystem scan, not manifest | accepted | 2026-05-30 |

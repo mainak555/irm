@@ -31,35 +31,52 @@ Every protected admin page SHALL include `admin/_layout.php` at the top and `adm
 ---
 
 ### Requirement: Role-aware sidebar navigation
-The sidebar SHALL be implemented as a Bootstrap 5 accordion. It SHALL always contain a plain Dashboard link and a plain Profile link visible to all authenticated roles. It SHALL contain an Authorization accordion section visible only to users with `role = 'sa'` or `role = 'admin'`. The Authorization section SHALL contain a Users item linking to `/admin/users.php` and a Settings item linking to `/admin/auth_config.php`. The Settings item SHALL be rendered only when `role = 'sa'`. The Authorization accordion section SHALL be in the expanded (open) state when the current page is `users` or `auth_config`; it SHALL be collapsed for all other pages.
+The sidebar SHALL be implemented as a Bootstrap 5 accordion. It SHALL always contain a plain Dashboard link and a plain Profile link visible to all authenticated roles. It SHALL contain an **Authorization** accordion section visible only to users with `role = 'sa'` or `role = 'admin'`. The Authorization section SHALL contain a Users item linking to `/admin/users.php` and a **SSO** item linking to `/admin/auth_config.php`. The SSO item SHALL be rendered only when `role = 'sa'`. It SHALL contain a **Settings** accordion section visible only to users with `role = 'sa'`. The Settings section SHALL contain a **General** item linking to `/admin/config_general.php`. The Authorization accordion section SHALL be in the expanded state when the current page is `users` or `auth_config`; collapsed otherwise. The Settings accordion section SHALL be in the expanded state when the current page is any `config_*` page; collapsed otherwise.
 
-#### Scenario: SA sees full sidebar with Authorization section
-- **WHEN** a user with `role = 'sa'` views any admin page
-- **THEN** the sidebar contains a Dashboard link, a Profile link, and an Authorization accordion section
-- **THEN** the Authorization section contains both a Users link and a Settings link
+#### Scenario: SA sees full sidebar including both accordions
+- **GIVEN** a user with role `sa` is authenticated
+- **WHEN** they view any admin page
+- **THEN** the sidebar SHALL contain a Dashboard link and a Profile link
+- **AND** the sidebar SHALL contain an Authorization accordion with Users and SSO links
+- **AND** the sidebar SHALL contain a Settings accordion with a General link
 
-#### Scenario: Admin sees Authorization section without Settings
-- **WHEN** a user with `role = 'admin'` views any admin page
-- **THEN** the sidebar contains a Dashboard link, a Profile link, and an Authorization accordion section
-- **THEN** the Authorization section contains a Users link
-- **THEN** the Authorization section does NOT contain a Settings link
+#### Scenario: Admin sees Authorization accordion but no Settings accordion
+- **GIVEN** a user with role `admin` is authenticated
+- **WHEN** they view any admin page
+- **THEN** the sidebar SHALL contain an Authorization accordion with a Users link
+- **AND** the Authorization accordion SHALL NOT contain an SSO link
+- **AND** no Settings accordion SHALL be present in the sidebar
 
-#### Scenario: Non-admin role sees no Authorization section
-- **WHEN** a user with `role = 'faculty'` or `role = 'user'` views any admin page
-- **THEN** the sidebar contains a Dashboard link and a Profile link
-- **THEN** no Authorization accordion section is present in the sidebar
+#### Scenario: Non-admin roles see no accordions
+- **GIVEN** a user with role `faculty` or `user` is authenticated
+- **WHEN** they view any admin page
+- **THEN** no Authorization accordion SHALL be present in the sidebar
+- **AND** no Settings accordion SHALL be present in the sidebar
+
+#### Scenario: Authorization accordion labels SSO sub-item correctly
+- **GIVEN** a user with role `sa` or `admin` is authenticated
+- **WHEN** they view any admin page
+- **THEN** the Authorization accordion SHALL contain a sub-item labelled "SSO"
+- **AND** the Authorization accordion SHALL NOT contain a sub-item labelled "Settings" or "Configurations"
+
+#### Scenario: Settings accordion expands on General page
+- **GIVEN** a user with role `sa` is authenticated
+- **WHEN** they open the General settings page (`/admin/config_general.php`)
+- **THEN** the Settings accordion SHALL be in the expanded state
+- **AND** the Authorization accordion SHALL be in the collapsed state
 
 #### Scenario: Authorization accordion is expanded on the Users page
 - **WHEN** an authenticated SA or admin user is on `/admin/users.php`
-- **THEN** the Authorization accordion section is in the expanded/open state
+- **THEN** the Authorization accordion section SHALL be in the expanded state
 
-#### Scenario: Authorization accordion is expanded on the Settings page
+#### Scenario: Authorization accordion is expanded on the SSO page
 - **WHEN** an authenticated SA user is on `/admin/auth_config.php`
-- **THEN** the Authorization accordion section is in the expanded/open state
+- **THEN** the Authorization accordion section SHALL be in the expanded state
 
-#### Scenario: Authorization accordion is collapsed on the Dashboard
-- **WHEN** an authenticated SA or admin user is on `/admin/index.php`
-- **THEN** the Authorization accordion section is in the collapsed state
+#### Scenario: Both accordions collapsed on Dashboard
+- **WHEN** an authenticated SA user is on `/admin/index.php`
+- **THEN** the Authorization accordion SHALL be in the collapsed state
+- **AND** the Settings accordion SHALL be in the collapsed state
 
 ---
 

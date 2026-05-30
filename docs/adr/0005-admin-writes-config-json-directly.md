@@ -1,16 +1,20 @@
-# ADR-0005: admin/settings.php writes config.json directly, dropping settings DB table
+# ADR-0005: admin/config_general.php writes config.json directly, dropping settings DB table
 
 **Date**: 2026-05-27
-**Status**: accepted
+**Status**: amended 2026-05-30 (filename corrected — see json-config-settings change)
 **Deciders**: project team (modular-public-layout-with-config change)
 
 ## Context
 
 With school identity moving to `config/config.json` (ADR-0001), the admin settings page must have a way to persist changes made via the browser panel. The previous approach wrote to the `settings` DB table, which is now being dropped. We need a write path that keeps JSON as the single source of truth without introducing a second source.
 
+The original ADR used the placeholder filename `admin/settings.php`. When the sidebar navigation was designed (json-config-settings change), a top-level **Settings** accordion was introduced with a **General** sub-item. The correct filename for the config.json editor is therefore `admin/config_general.php`.
+
 ## Decision
 
-`admin/settings.php` reads `config/config.json`, merges the submitted form fields, writes a backup to `config/config.json.bak`, then writes the updated file using `file_put_contents` with `LOCK_EX`. After writing, it validates the result with `json_decode`; if validation fails it restores the backup and shows an error flash. The `settings` DB table is dropped and not kept in sync.
+`admin/config_general.php` reads `config/config.json`, merges the submitted form fields, writes a backup to `config/config.json.bak`, then writes the updated file using `file_put_contents` with `LOCK_EX`. After writing, it validates the result with `json_decode`; if validation fails it restores the backup and shows an error flash. The `settings` DB table is dropped and not kept in sync.
+
+Access is restricted to `sa` role only.
 
 ## Alternatives Considered
 

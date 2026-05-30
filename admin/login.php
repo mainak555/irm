@@ -81,8 +81,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $oidc = $is_setup ? null : auth_config_active();
-$school_title = cfg('school.title') ?: 'IRM';
-$logo_url     = cfg('school.logoUrl') ?: '/assets/img/logo.png';
+$school_title = cfg('general.title') ?: 'IRM';
+$logo_url     = cfg('general.logoUrl') ?: '/assets/img/logo.png';
 ?>
 <!DOCTYPE html>
 <html lang="en">

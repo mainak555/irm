@@ -1,5 +1,5 @@
 {
-  "school": {
+  "general": {
     "title": "NovaSphere Techno Creative Institute",
     "subtitle": "Velora, Bengaluru — Established 1926",
     "logoUrl": "",
@@ -8,7 +8,10 @@
     "fax": "+91 80 4568-0030",
     "email": "connect@novasphereitc.org",
     "social": {
-      "facebook": "https://facebook.com/novasphereitc"
+      "facebook": "https://facebook.com/novasphereitc",
+      "twitter": "",
+      "instagram": "",
+      "youtube": ""
     }
   },
   "colors": {
@@ -29,6 +32,9 @@
     "footer-2": "#1c1f24",
     "footer-text": "#c8c7c2",
     "news-blue": "#2d4ea8"
+  },
+  "public": {
+    "theme": "classic"
   },
   "footer": {
     "copyright": "Copyright © 2026 — All Rights Reserved",

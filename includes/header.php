@@ -14,8 +14,8 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../config.php';
 
-$site_title    = cfg('school.title', 'School CMS');
-$site_subtitle = cfg('school.subtitle', '');
+$site_title    = cfg('general.title', 'School CMS');
+$site_subtitle = cfg('general.subtitle', '');
 $page_title    = $page_title ?? $site_title;
 $active_slug   = $active_slug ?? 'home';
 
@@ -41,6 +41,14 @@ unset($item);
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/site.css" />
+<?php
+$_irm_theme_slug = cfg('public.theme', 'classic');
+$_irm_theme_file = __DIR__ . '/../public/css/themes/' . basename($_irm_theme_slug) . '.css';
+if ($_irm_theme_slug === '' || !is_file($_irm_theme_file)) {
+    $_irm_theme_slug = 'classic';
+}
+?>
+<link rel="stylesheet" href="/public/css/themes/<?= h($_irm_theme_slug) ?>.css" />
 <?php
 $colors = cfg('colors', []);
 if (is_array($colors) && $colors):
