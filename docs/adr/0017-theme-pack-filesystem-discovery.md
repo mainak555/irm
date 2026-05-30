@@ -10,7 +10,7 @@ The admin General page (`admin/config_general.php`) needs to present a dropdown 
 
 ## Decision
 
-Available theme packs are discovered at request time by scanning `public/css/themes/*.css` with `glob()`. The filename stem (e.g., `classic` from `classic.css`) serves as both the slug stored in `config.json` and the display label (title-cased via `ucwords(str_replace('-', ' ', $slug))`). No manifest file is used.
+Available theme packs are discovered at request time by scanning `assets/css/themes/*.css` with `glob()`. The filename stem (e.g., `classic` from `classic.css`) serves as both the slug stored in `config.json` and the display label (title-cased via `ucwords(str_replace('-', ' ', $slug))`). No manifest file is used.
 
 ## Alternatives Considered
 
@@ -22,7 +22,7 @@ Available theme packs are discovered at request time by scanning `public/css/the
 ## Consequences
 
 ### Positive
-- Adding a new theme pack is a single operation: drop a `.css` file into `public/css/themes/`.
+- Adding a new theme pack is a single operation: drop a `.css` file into `assets/css/themes/`.
 - No manifest/filesystem drift is possible — the dropdown always reflects what actually exists.
 - Zero additional config files to maintain.
 
@@ -31,4 +31,4 @@ Available theme packs are discovered at request time by scanning `public/css/the
 - Pack ordering is alphabetical (filesystem `glob()` order), not manually curated.
 
 ### Risks
-- If `public/css/themes/` is missing or empty, the dropdown is empty and the saved slug may reference a non-existent file. Mitigation: `config_general.php` warns if the directory is empty; the public view falls back to `classic` if the active pack file is absent.
+- If `assets/css/themes/` is missing or empty, the dropdown is empty and the saved slug may reference a non-existent file. Mitigation: `config_general.php` warns if the directory is empty; the public view falls back to `classic` if the active pack file is absent.

@@ -21,7 +21,7 @@ Zero Composer, zero npm, zero build step.
 |---|---|
 | Language | PHP 8.2, `declare(strict_types=1)` on every file |
 | Database | MySQL 8 / MariaDB — PDO, `FETCH_ASSOC`, named placeholders |
-| Admin UI | Bootstrap 5.3 + custom `admin/style.css` (Material Shadcn tokens) |
+| Admin UI | Bootstrap 5.3 + custom `assets/css/admin.css` (Material Shadcn tokens) |
 | Auth | PHP sessions + bcrypt (`password_verify`) + OIDC/SAML via `auth_config` |
 | Fonts | Inter (admin), Google Fonts (public, from config.json) |
 
@@ -81,7 +81,7 @@ Rendered automatically by `_layout.php`.
 
 ## Admin Theme
 
-`admin/style.css` implements the **Material Shadcn** design system on top of
+`assets/css/admin.css` implements the **Material Shadcn** design system on top of
 Bootstrap 5.3. All component colors reference `--irm-*` tokens.
 
 ### CSS tokens
@@ -175,6 +175,8 @@ Run `mysql < sql/schema.sql` to reset. **WARNING: drops existing tables.**
 | `includes/db_auth_config.php` | `auth_config_get/save/clear/toggle` |
 | `admin/_layout.php` | Admin shell: opens HTML, topbar, sidebar, `<main>` |
 | `admin/_layout_end.php` | Closes `</main>`, loads Bootstrap JS bundle |
-| `admin/style.css` | Material Shadcn theme tokens + all component styles |
+| `assets/css/admin.css` | Material Shadcn theme tokens + all component styles |
+| `assets/css/themes/` | Public theme pack CSS files (scanned at runtime) |
+| `components/carousel.php` | Public carousel PHP partial |
 | `sql/schema.sql` | DROP/CREATE `auth_users` + `auth_config` |
 | `config/config.json` | School branding — edit to deploy for a new school |

@@ -2,13 +2,13 @@
 
 ## Purpose
 
-A layout-aware public PHP component at `public/components/carousel.php`. Renders a Bootstrap carousel from images auto-discovered in `assets/img/carousel/`, with captions from `config/slides.json`. Accepts a `$layout` variable before inclusion to control Bootstrap column wrapping, enabling placement in full-width or two-column home-page layouts.
+A layout-aware public PHP component at `components/carousel.php` (project root). Renders a Bootstrap carousel from images auto-discovered in `assets/img/carousel/`, with captions from `config/slides.json`. Accepts a `$layout` variable before inclusion to control Bootstrap column wrapping, enabling placement in full-width or two-column home-page layouts.
 
 ## Requirements
 
 ### Requirement: Image discovery
 
-`public/components/carousel.php` SHALL discover slide images by calling `glob('assets/img/carousel/*.{jpg,jpeg,png,gif,webp}', GLOB_BRACE)` and sorting the result with `natsort()`. Only files with those extensions SHALL be included. The component SHALL NOT query any database table.
+`components/carousel.php` SHALL discover slide images by calling `glob('assets/img/carousel/*.{jpg,jpeg,png,gif,webp}', GLOB_BRACE)` and sorting the result with `natsort()`. Only files with those extensions SHALL be included. The component SHALL NOT query any database table.
 
 #### Scenario: Images in folder are discovered
 - **WHEN** `assets/img/carousel/` contains `campus.jpg` and `hall.png`
@@ -43,7 +43,7 @@ For each discovered image, the component SHALL look up its basename (e.g. `"camp
 The component SHALL read a `$layout` variable set by the caller before `require`. `$layout` SHALL accept three values: `'full'` (default when unset), `'col-left'`, and `'col-right'`. The carousel wrapper SHALL apply the appropriate Bootstrap column class based on the value.
 
 #### Scenario: No layout variable defaults to full width
-- **WHEN** `public/components/carousel.php` is included without setting `$layout`
+- **WHEN** `components/carousel.php` is included without setting `$layout`
 - **THEN** the carousel wrapper SHALL carry the class `col-12`
 
 #### Scenario: Layout full renders full-width column

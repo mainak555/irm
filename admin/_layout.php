@@ -35,7 +35,7 @@ $bs_theme_attr = ($theme === 'system') ? '' : ' data-bs-theme="' . h($theme) . '
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-<link rel="stylesheet" href="/admin/style.css">
+<link rel="stylesheet" href="/assets/css/admin.css">
 <script>
 /* ------------------------------------------------------------------ *
  * IRM timestamp utility                                               *

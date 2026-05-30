@@ -18,7 +18,7 @@ The database connection SHALL be configured exclusively from environment variabl
 ---
 
 ### Requirement: Admin layout wraps all protected pages
-Every protected admin page SHALL include `admin/_layout.php` at the top and `admin/_layout_end.php` at the bottom. The layout SHALL render: a top navbar, a left sidebar, a flash message area, and a main content `<div>`. The layout SHALL load Bootstrap 5.3 from CDN followed by `admin/style.css`. The layout SHALL set `data-bs-theme` on the `<html>` element based on the current user's theme preference before Bootstrap loads.
+Every protected admin page SHALL include `admin/_layout.php` at the top and `admin/_layout_end.php` at the bottom. The layout SHALL render: a top navbar, a left sidebar, a flash message area, and a main content `<div>`. The layout SHALL load Bootstrap 5.3 from CDN followed by `assets/css/admin.css`. The layout SHALL set `data-bs-theme` on the `<html>` element based on the current user's theme preference before Bootstrap loads.
 
 #### Scenario: Protected page renders within admin chrome
 - **WHEN** an authenticated user loads any protected admin page
@@ -26,7 +26,7 @@ Every protected admin page SHALL include `admin/_layout.php` at the top and `adm
 
 #### Scenario: Bootstrap CDN link appears before custom stylesheet
 - **WHEN** any admin page is rendered
-- **THEN** the HTML `<head>` contains a Bootstrap 5.3 CDN `<link>` followed by the `admin/style.css` `<link>`
+- **THEN** the HTML `<head>` contains a Bootstrap 5.3 CDN `<link>` followed by the `assets/css/admin.css` `<link>`
 
 ---
 

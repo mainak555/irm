@@ -176,6 +176,10 @@ services:
     env_file: .env
     depends_on:
       - db
+    volumes:
+      - ./config:/var/www/html/config
+      - ./assets/img/carousel:/var/www/html/assets/img/carousel
+      # - ./assets/img/gallery:/var/www/html/assets/img/gallery  # add when gallery ships
 
 volumes:
   db-data:
@@ -506,46 +510,65 @@ cfg('brand.colors.accent')   // "#b5451b"
 irm/
 ├── Dockerfile
 ├── .dockerignore
+├── docker-compose.example.yml
 ├── env.example              # DB credentials template — copy to .env
-├── config.php                # .env loader, PDO DSN helpers, session_start, h(), cfg()
-├── index.php                 # Public home page
-├── page.php                  # Generic content page (?slug=…)
+├── config.php               # .env loader, PDO DSN helpers, session_start, h(), cfg()
+├── index.php                # Public home page
+├── page.php                 # Generic content page (?slug=…)
 ├── README.md
 │
-├── config/
-│   └── config.json           # School identity & branding (edit to deploy)
+├── config/                  # ← Docker volume mount (survives rebuilds)
+│   ├── config.json          # School identity & branding (edit to deploy)
+│   ├── slides.json          # Carousel captions
+│   ├── home.json            # Home page content
+│   ├── menu.json            # Primary navigation items
+│   └── external_links.json  # External link blocks
 │
 ├── sql/
-│   └── schema.sql            # DROP/CREATE auth_users + auth_config tables
+│   └── schema.sql           # DROP/CREATE auth_users + auth_config tables
 │
 ├── includes/
-│   ├── db.php                # PDO singleton — db() (sets UTC timezone)
-│   ├── auth.php              # require_auth(), current_user(), PWD_REGEX
-│   ├── audit.php             # audit_by() — current user ID for created_by/updated_by
-│   ├── functions.php         # h(), public helper functions
-│   ├── db_login.php          # auth_user_count/find/create/update functions
-│   ├── db_profile.php        # auth_user_update_password/theme
-│   ├── db_auth_config.php    # auth_config_get/save/clear/toggle
-│   └── header.php / footer.php
+│   ├── db.php               # PDO singleton — db() (sets UTC timezone)
+│   ├── auth.php             # require_auth(), current_user(), PWD_REGEX
+│   ├── audit.php            # audit_by() — current user ID for created_by/updated_by
+│   ├── functions.php        # h(), public helper functions
+│   ├── db_login.php         # auth_user_count/find/create/update functions
+│   ├── db_profile.php       # auth_user_update_password/theme
+│   ├── db_auth_config.php   # auth_config_get/save/clear/toggle
+│   ├── db_users.php         # User management helpers
+│   ├── header.php           # <head>, CSS vars, site header, primary nav
+│   └── footer.php           # Footer with quick_links + contact
+│
+├── components/              # PHP include partials
+│   └── carousel.php         # Bootstrap carousel (reads assets/img/carousel/)
 │
 ├── admin/
-│   ├── _layout.php           # Admin chrome: topbar + sidebar (requires auth)
-│   ├── _layout_end.php       # Closes admin chrome, loads Bootstrap JS
-│   ├── style.css             # Material Shadcn theme (light/dark tokens, Inter font)
-│   ├── login.php             # Login + first-launch setup form
-│   ├── logout.php            # Session destroy
-│   ├── index.php             # Dashboard
-│   ├── profile.php           # Change password + theme preference
-│   ├── users.php             # User management (sa, admin)
-│   ├── auth_config.php       # OIDC / SAML provider configuration (sa only)
-│   ├── 403.php               # Access denied page
+│   ├── _layout.php          # Admin chrome: topbar + sidebar (requires auth)
+│   ├── _layout_end.php      # Closes admin chrome, loads Bootstrap JS
+│   ├── login.php            # Login + first-launch setup form
+│   ├── logout.php           # Session destroy
+│   ├── index.php            # Dashboard
+│   ├── profile.php          # Change password + theme preference
+│   ├── users.php            # User management (sa, admin)
+│   ├── users_ajax.php       # AJAX handler for inline user edits
+│   ├── carousel.php         # Carousel image upload + caption management
+│   ├── config_general.php   # General settings — identity, theme pack (sa only)
+│   ├── auth_config.php      # OIDC / SAML provider configuration (sa only)
+│   ├── 403.php              # Access denied page
 │   └── auth/
-│       ├── redirect.php      # Builds PKCE authorization URL → redirects to provider
-│       └── callback.php      # OAuth callback handler (receives code from provider)
+│       ├── redirect.php     # Builds PKCE authorization URL → redirects to provider
+│       ├── callback.php     # OAuth callback handler
+│       └── error.php        # OIDC provisioning error page
 │
-└── assets/
-    └── css/
-        └── site.css          # Public site styles
+└── assets/                  # Single static-file root (CSS, images)
+    ├── css/
+    │   ├── site.css         # Public site styles
+    │   ├── admin.css        # Admin Material Shadcn theme (light/dark, Inter font)
+    │   └── themes/          # Public theme packs — drop a .css here to add one
+    │       └── classic.css  # Default theme pack
+    └── img/
+        ├── logo.png
+        └── carousel/        # ← Docker volume mount (user-uploaded images)
 ```
 
 ---

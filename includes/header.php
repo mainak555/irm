@@ -43,12 +43,12 @@ unset($item);
 <link rel="stylesheet" href="assets/css/site.css" />
 <?php
 $_irm_theme_slug = cfg('public.theme', 'classic');
-$_irm_theme_file = __DIR__ . '/../public/css/themes/' . basename($_irm_theme_slug) . '.css';
+$_irm_theme_file = __DIR__ . '/../assets/css/themes/' . basename($_irm_theme_slug) . '.css';
 if ($_irm_theme_slug === '' || !is_file($_irm_theme_file)) {
     $_irm_theme_slug = 'classic';
 }
 ?>
-<link rel="stylesheet" href="/public/css/themes/<?= h($_irm_theme_slug) ?>.css" />
+<link rel="stylesheet" href="/assets/css/themes/<?= h($_irm_theme_slug) ?>.css" />
 <?php
 $colors = cfg('colors', []);
 if (is_array($colors) && $colors):

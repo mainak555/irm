@@ -20,7 +20,7 @@ if ($msg === '') {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-<link rel="stylesheet" href="/admin/style.css">
+<link rel="stylesheet" href="/assets/css/admin.css">
 </head>
 <body class="grain-texture auth-page-bg">
 <div class="auth-card w-100 px-3">

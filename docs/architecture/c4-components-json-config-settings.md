@@ -21,7 +21,7 @@ C4Component
   }
 
   ComponentDb(config_json, "config/config.json", "JSON file", "general.*, colors.*, footer.*, public.theme slug")
-  ComponentDb(themes_dir, "public/css/themes/*.css", "CSS files", "Filesystem-discovered theme packs")
+  ComponentDb(themes_dir, "assets/css/themes/*.css", "CSS files", "Filesystem-discovered theme packs")
 
   Rel(sa, layout, "Navigates to General", "HTTP")
   Rel(layout, config_general, "Links to", "HTML anchor")
@@ -48,6 +48,6 @@ C4Component
 | Admin edits school identity | SA → `config_general.php` POST → `config.json` (LOCK_EX + backup) |
 | Admin selects theme pack | SA → `config_general.php` POST → `config.json → public.theme` (slug from glob scan) |
 | Public view reads identity | `pub_view` → `cfg()` → `config.json → general.*` |
-| Public view loads theme CSS | `pub_view` → `cfg('public.theme')` → `public/css/themes/{slug}.css` |
+| Public view loads theme CSS | `pub_view` → `cfg('public.theme')` → `assets/css/themes/{slug}.css` |
 | Admin chrome reads branding | `_layout.php` → `cfg('general.title')`, `cfg('general.logoUrl')` |
 | CSS custom properties | `header.php` → `cfg('colors')` → inline `<style>:root{…}` |

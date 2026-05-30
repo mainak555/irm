@@ -28,7 +28,7 @@ require_once __DIR__ . '/includes/header.php';
 
 <div class="container my-3">
   <div class="row">
-    <?php $layout = 'full'; require __DIR__ . '/public/components/carousel.php'; ?>
+    <?php $layout = 'full'; require __DIR__ . '/components/carousel.php'; ?>
   </div>
 </div>
 
