@@ -473,3 +473,7 @@ composer.lock
 *.scss.map
 
 .env*
+assets/img/carousel/
+
+config/*
+!config/config.json

@@ -13,7 +13,7 @@ $theme = $user['theme'] ?? 'system';
 $role  = $user['role']  ?? '';
 
 $current_page = basename($_SERVER['PHP_SELF'], '.php');
-$logo_url     = cfg('school.logoUrl') ?: '/assets/img/logo.png';
+$logo_url     = cfg('general.logoUrl') ?: '/assets/img/logo.png';
 
 // Resolve data-bs-theme attribute value for non-system themes
 $bs_theme_attr = ($theme === 'system') ? '' : ' data-bs-theme="' . h($theme) . '"';
@@ -23,7 +23,7 @@ $bs_theme_attr = ($theme === 'system') ? '' : ' data-bs-theme="' . h($theme) . '
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title><?= h(cfg('school.title') ?: 'IRM') ?> &mdash; Admin</title>
+<title><?= h(cfg('general.title') ?: 'IRM') ?> &mdash; Admin</title>
 <?php if ($theme === 'system'): ?>
 <script>
 (function(){
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function () {
 <nav class="navbar navbar-expand px-3 border-bottom" style="height:56px">
   <a class="navbar-brand d-flex align-items-center gap-2" href="/admin/index.php">
     <img src="<?= h($logo_url) ?>" alt="Logo" class="navbar-logo">
-    <?= h(cfg('school.title') ?: 'IRM Admin') ?>
+    <?= h(cfg('general.title') ?: 'IRM Admin') ?>
   </a>
   <div class="ms-auto d-flex align-items-center gap-3">
     <span class="d-none d-sm-inline">
@@ -134,8 +134,36 @@ if (localStorage.getItem('irm_sidebar') === 'collapsed')
                href="/admin/users.php">Users</a>
             <?php if ($role === 'sa'): ?>
             <a class="nav-link ps-3 <?= $current_page === 'auth_config' ? 'active' : '' ?>"
-               href="/admin/auth_config.php">Settings</a>
+               href="/admin/auth_config.php">SSO</a>
             <?php endif; ?>
+          </div>
+        </div>
+      </div>
+      <?php endif; ?>
+
+      <?php if (in_array($role, ['sa', 'admin'], true)): ?>
+      <?php $settingsOpen = str_starts_with($current_page, 'config_') || $current_page === 'carousel'; ?>
+      <div class="accordion-item border-0">
+        <h2 class="accordion-header">
+          <button class="accordion-button <?= $settingsOpen ? '' : 'collapsed' ?> px-2 py-2"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#settingsMenu"
+                  aria-expanded="<?= $settingsOpen ? 'true' : 'false' ?>"
+                  aria-controls="settingsMenu">
+            Settings
+          </button>
+        </h2>
+        <div id="settingsMenu"
+             class="accordion-collapse collapse <?= $settingsOpen ? 'show' : '' ?>"
+             data-bs-parent="#sidebarAccordion">
+          <div class="accordion-body py-1 px-0">
+            <?php if ($role === 'sa'): ?>
+            <a class="nav-link ps-3 <?= $current_page === 'config_general' ? 'active' : '' ?>"
+               href="/admin/config_general.php">General</a>
+            <?php endif; ?>
+            <a class="nav-link ps-3 <?= $current_page === 'carousel' ? 'active' : '' ?>"
+               href="/admin/carousel.php">Carousel</a>
           </div>
         </div>
       </div>
