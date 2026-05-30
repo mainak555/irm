@@ -1,14 +1,14 @@
 {
   "school": {
-    "title": "Ramakrishna Mission Boys' Home Industrial Training Centre",
-    "subtitle": "Rahara, Kolkata — Established 1957",
+    "title": "NovaSphere Techno Creative Institute",
+    "subtitle": "Velora, Bengaluru — Established 1926",
     "logoUrl": "",
-    "address": "Ramakrishna Mission Boys' Home\nP.O.- Rahara, P.S.- Khardah\nKolkata, West Bengal, India\nPIN- 700118",
-    "phone": "+91 33 2568-2850 / 3219",
-    "fax": "+91 33 2568-0030",
-    "email": "email@rkmbhitc.org",
+    "address": "NovaSphere Learning Habitat\nP.O.- Velora, P.S.- Nexford\nBengaluru, Karnataka, India\nPIN- 560118",
+    "phone": "+91 80 4568-2850 / 3219",
+    "fax": "+91 80 4568-0030",
+    "email": "connect@novasphereitc.org",
     "social": {
-      "facebook": "https://facebook.com/"
+      "facebook": "https://facebook.com/novasphereitc"
     }
   },
   "colors": {
@@ -34,13 +34,34 @@
     "copyright": "Copyright © 2026 — All Rights Reserved",
     "powered_by": "Powered by: School CMS (PHP · MySQL)",
     "quick_links": [
-      {"label": "Home",              "url": "index.php"},
-      {"label": "Contact Us",            "url": "page.php?slug=contact"},
-      {"label": "Sitemap",               "url": "sitemap.php"},
-      {"label": "Privacy Policy",        "url": "page.php?slug=privacy"},
-      {"label": "Terms of Use",          "url": "page.php?slug=terms"},
-      {"label": "Copyright Information", "url": "page.php?slug=copyright"},
-      {"label": "Website Matters",       "url": "page.php?slug=website-matters"}
+      {
+        "label": "Home",
+        "url": "index.php"
+      },
+      {
+        "label": "Contact Us",
+        "url": "page.php?slug=contact"
+      },
+      {
+        "label": "Sitemap",
+        "url": "sitemap.php"
+      },
+      {
+        "label": "Privacy Policy",
+        "url": "page.php?slug=privacy"
+      },
+      {
+        "label": "Terms of Use",
+        "url": "page.php?slug=terms"
+      },
+      {
+        "label": "Copyright Information",
+        "url": "page.php?slug=copyright"
+      },
+      {
+        "label": "Website Matters",
+        "url": "page.php?slug=website-matters"
+      }
     ]
   }
 }
